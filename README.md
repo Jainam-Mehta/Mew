@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Multi-Tenant SaaS Platform
 
 A professional, multi-service subscription management platform built with React, featuring separate dashboards for users and administrators.
@@ -219,3 +220,6 @@ This is a proprietary project for [Your Company Name]. All rights reserved.
 ---
 
 Built with ❤️ using React + Vite + Tailwind CSS
+=======
+# Mew
+>>>>>>> 3f1527759b5ddc21a66617d76c8583b8c245a1b4
