@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/client';
 import { 
   LogOut, User, Bell, Settings, Activity, 
   TrendingUp, Thermometer, Box, Cpu,
@@ -8,7 +9,13 @@ import {
 } from 'lucide-react';
 import MewIcon from '../components/MewIcon';
 
-const SERVICES = [
+const ICON_MAP = {
+  Thermometer: Thermometer,
+  Box: Box,
+  Cpu: Cpu,
+};
+
+const DEFAULT_SERVICES = [
   {
     id: 1,
     name: 'Sheela',
@@ -38,15 +45,33 @@ const SERVICES = [
 const UserDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [selectedService, setSelectedService] = useState(null);
+  const [services, setServices] = useState(DEFAULT_SERVICES);
 
-  const hasAccess = (serviceId) => {
-    return user?.subscribedServices?.includes(serviceId);
+  useEffect(() => {
+    api.get('/services')
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map((s) => ({
+            ...s,
+            icon: ICON_MAP[s.icon] || Thermometer,
+          }));
+          setServices(mapped);
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not fetch services from API, using default data:', err);
+      });
+  }, [user]);
+
+  const hasAccess = (service) => {
+    if (typeof service.is_accessible === 'boolean') {
+      return service.is_accessible;
+    }
+    return user?.subscribedServices?.includes(service.id);
   };
 
   const handleServiceClick = (service) => {
-    if (hasAccess(service.id)) {
-      setSelectedService(service.id);
+    if (hasAccess(service)) {
       navigate(`/service/${service.id}`);
     } else {
       navigate(`/subscription-required/${service.id}`);
@@ -158,9 +183,9 @@ const UserDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {SERVICES.map((service) => {
+          {services.map((service) => {
             const IconComponent = service.icon;
-            const isAccessible = hasAccess(service.id);
+            const isAccessible = hasAccess(service);
 
             return (
               <div

@@ -12,30 +12,38 @@ const Login = () => {
   const [showUserFields, setShowUserFields] = useState(false);
   const [error, setError] = useState('');
   
+  const [submitting, setSubmitting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSubmitting(true);
 
-    // For regular users, require all fields
-    if (!showUserFields && email && password) {
-      const result = login(email, password);
-      if (result.success) {
-        navigate(result.isAdmin ? '/admin' : '/dashboard');
+    try {
+      // For regular users, require all fields
+      if (!showUserFields && email && password) {
+        const result = await login(email, password);
+        if (result && result.success) {
+          navigate(result.isAdmin ? '/admin' : '/dashboard');
+        } else {
+          setError(result?.message || 'Login failed');
+        }
+      } else if (showUserFields && email && password && name && mobile) {
+        const result = await login(email, password, name, mobile);
+        if (result && result.success) {
+          navigate('/dashboard');
+        } else {
+          setError(result?.message || 'Login failed');
+        }
       } else {
-        setError(result.message);
+        setError('Please fill all required fields');
       }
-    } else if (showUserFields && email && password && name && mobile) {
-      const result = login(email, password, name, mobile);
-      if (result.success) {
-        navigate('/dashboard');
-      } else {
-        setError(result.message);
-      }
-    } else {
-      setError('Please fill all required fields');
+    } catch (err) {
+      setError(err.message || 'An unexpected error occurred');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -172,9 +180,13 @@ const Login = () => {
               </div>
             </div>
 
-            <button type="submit" className="w-full btn-primary flex items-center justify-center gap-2">
+            <button 
+              type="submit" 
+              disabled={submitting} 
+              className={`w-full btn-primary flex items-center justify-center gap-2 ${submitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+            >
               <LogIn className="w-5 h-5" />
-              Sign In
+              {submitting ? 'Signing In...' : (showUserFields ? 'Register & Sign In' : 'Sign In')}
             </button>
           </form>
 
