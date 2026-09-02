@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SettingsProvider } from './context/SettingsContext';
 import Login from './pages/Login';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -24,51 +25,53 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Login />} />
+      <SettingsProvider>
+        <AuthProvider>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Login />} />
 
-          {/* Protected User Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <UserDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/service/:serviceId"
-            element={
-              <ProtectedRoute>
-                <ServiceDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/subscription-required/:serviceId"
-            element={
-              <ProtectedRoute>
-                <SubscriptionRequiredWrapper />
-              </ProtectedRoute>
-            }
-          />
+            {/* Protected User Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <UserDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/service/:serviceId"
+              element={
+                <ProtectedRoute>
+                  <ServiceDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/subscription-required/:serviceId"
+              element={
+                <ProtectedRoute>
+                  <SubscriptionRequiredWrapper />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Protected Admin Routes */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute adminOnly={true}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
+            {/* Protected Admin Routes */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Catch all */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AuthProvider>
+            {/* Catch all */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
+      </SettingsProvider>
     </Router>
   );
 }

@@ -246,10 +246,12 @@ def send_test_alert(
 
 
 @public_router.get("/contact")
-def get_public_contact(db: Session = Depends(get_db)):
-    """Retrieve public organization profile, support hotline, WhatsApp desk, and sales contacts."""
+@public_router.get("/config")
+def get_public_config(db: Session = Depends(get_db)):
+    """Retrieve public platform identity, support contacts, and service operational parameters."""
     data = _load_settings_dict(db)
     gen = data.get("general", {})
+    iot = data.get("iot", {})
     return {
         "platformName": gen.get("platformName", "Mew"),
         "tagline": gen.get("tagline", "Multi-Service Management Platform"),
@@ -259,4 +261,22 @@ def get_public_contact(db: Session = Depends(get_db)):
         "supportEmail": gen.get("supportEmail", "sales@company.com"),
         "timezone": gen.get("timezone", "Asia/Kolkata"),
         "dateFormat": gen.get("dateFormat", "DD-MMM-YYYY HH:mm"),
+        "iot": {
+            "temperatureUnit": iot.get("temperatureUnit", "C"),
+            "telemetryPollingIntervalSeconds": iot.get("telemetryPollingIntervalSeconds", 15),
+            "minTempThreshold": iot.get("minTempThreshold", 2.0),
+            "maxTempThreshold": iot.get("maxTempThreshold", 8.0),
+            "humidityThreshold": iot.get("humidityThreshold", 85.0),
+            "alertGracePeriodMinutes": iot.get("alertGracePeriodMinutes", 5),
+            "maxEquipmentTempThreshold": iot.get("maxEquipmentTempThreshold", 75.0),
+            "vibrationLimitMms": iot.get("vibrationLimitMms", 4.5),
+            "currentDrawLimitAmps": iot.get("currentDrawLimitAmps", 32.0),
+            "maintenanceIntervalHours": iot.get("maintenanceIntervalHours", 500),
+            "uptimeSlaPercent": iot.get("uptimeSlaPercent", 99.0),
+            "sensorOfflineThresholdMinutes": iot.get("sensorOfflineThresholdMinutes", 15),
+            "monthlyDataCapGb": iot.get("monthlyDataCapGb", 2.0),
+            "lowBatteryThresholdVolts": iot.get("lowBatteryThresholdVolts", 3.3),
+            "maxPacketLossPercent": iot.get("maxPacketLossPercent", 5.0),
+            "autoOtaUpdates": iot.get("autoOtaUpdates", False)
+        }
     }

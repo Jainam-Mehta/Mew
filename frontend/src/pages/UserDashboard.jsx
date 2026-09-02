@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useSettings } from '../context/SettingsContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/client';
 import { 
@@ -44,6 +45,7 @@ const DEFAULT_SERVICES = [
 
 const UserDashboard = () => {
   const { user, logout } = useAuth();
+  const { settings, tempUnit } = useSettings();
   const navigate = useNavigate();
   const [services, setServices] = useState(DEFAULT_SERVICES);
   const [showContactModal, setShowContactModal] = useState(false);
@@ -118,8 +120,8 @@ const UserDashboard = () => {
             <div className="flex items-center gap-3">
               <MewIcon className="w-10 h-10" />
               <div>
-                <span className="text-xl font-bold tracking-tight">Mew</span>
-                <span className="text-xs text-navy-200 block">Dashboard</span>
+                <span className="text-xl font-bold tracking-tight">{settings?.platformName || 'Mew'}</span>
+                <span className="text-xs text-navy-200 block">{settings?.tagline || 'Dashboard'}</span>
               </div>
             </div>
 

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useSettings } from '../context/SettingsContext';
 import { Mail, Lock, User, Phone, LogIn } from 'lucide-react';
 import MewIcon from '../components/MewIcon';
 
 const Login = () => {
+  const { settings } = useSettings();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -66,8 +68,8 @@ const Login = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-400 to-purple-500 rounded-2xl mb-4 shadow-2xl">
             <MewIcon className="w-16 h-16" />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">Mew</h1>
-          <p className="text-navy-200">Multi-Service Management Portal</p>
+          <h1 className="text-4xl font-bold text-white mb-2">{settings?.platformName || 'Mew'}</h1>
+          <p className="text-navy-200">{settings?.tagline || 'Multi-Service Management Platform'}</p>
         </div>
 
         {/* Login Card */}

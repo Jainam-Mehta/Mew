@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useSettings } from '../context/SettingsContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/client';
 import { 
@@ -12,6 +13,7 @@ import AdminSettings from '../components/admin/AdminSettings';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
+  const { settings } = useSettings();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   
@@ -434,8 +436,8 @@ const AdminDashboard = () => {
                 <MewIcon className="w-8 h-8" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Mew Admin</h1>
-                <p className="text-xs text-navy-200">Full System Control</p>
+                <h1 className="text-xl font-bold text-white">{settings?.platformName || 'Mew'} Admin</h1>
+                <p className="text-xs text-navy-200">{settings?.tagline || 'Full System Control'}</p>
               </div>
             </div>
 

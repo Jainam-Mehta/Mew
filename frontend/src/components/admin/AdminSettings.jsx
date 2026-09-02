@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
+import { useSettings } from '../../context/SettingsContext';
 import { 
   Building2, ShieldCheck, Thermometer, Bell, 
   Save, Check, AlertCircle, Key, Lock, Phone,
@@ -9,6 +10,7 @@ import {
 } from 'lucide-react';
 
 const AdminSettings = () => {
+  const { refreshSettings } = useSettings();
   const [activeCategory, setActiveCategory] = useState('iot');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -123,6 +125,9 @@ const AdminSettings = () => {
       const updated = await api.put('/admin/settings', settings);
       if (updated) {
         setSettings(updated);
+      }
+      if (refreshSettings) {
+        await refreshSettings();
       }
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3500);

@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useSettings } from '../context/SettingsContext';
 import api from '../api/client';
 import { 
   ArrowLeft, Thermometer, Droplets, Wifi, WifiOff, 
-  AlertTriangle, Activity, TrendingUp, Calendar, RefreshCw
+  AlertTriangle, Activity, TrendingUp, Calendar, RefreshCw,
+  Sliders, ShieldCheck, CheckCircle2
 } from 'lucide-react';
 import SubscriptionRequired from '../components/SubscriptionRequired';
 
 const ServiceDetail = () => {
   const { serviceId } = useParams();
   const { user } = useAuth();
+  const { settings, formatTemp, tempUnit, checkSensorAlarm } = useSettings();
   const navigate = useNavigate();
 
   // Service names mapping
@@ -67,23 +70,25 @@ const ServiceDetail = () => {
       });
   };
 
+  // Initial load and dynamic polling based on Admin Settings
   useEffect(() => {
     loadData();
-  }, [serviceId]);
+    const intervalSec = settings?.iot?.telemetryPollingIntervalSeconds || 15;
+    const intervalId = setInterval(() => {
+      loadData();
+    }, intervalSec * 1000);
+
+    return () => clearInterval(intervalId);
+  }, [serviceId, settings?.iot?.telemetryPollingIntervalSeconds]);
 
   if (!hasAccess) {
     return <SubscriptionRequired serviceName={serviceName} />;
   }
 
-  const filteredSensors = (telemetry.sensors || []).filter((s) => {
-    if (!filterSearch) return true;
-    const q = filterSearch.toLowerCase();
-    return (
-      s.location?.toLowerCase().includes(q) ||
-      s.name?.toLowerCase().includes(q) ||
-      s.status?.toLowerCase().includes(q)
-    );
-  });
+  const filteredSensors = telemetry.sensors.filter((s) =>
+    s.name.toLowerCase().includes(filterSearch.toLowerCase()) ||
+    s.location.toLowerCase().includes(filterSearch.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -101,7 +106,9 @@ const ServiceDetail = () => {
               </button>
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">{serviceName}</h1>
-                <p className="text-sm text-gray-600">Temperature & Humidity Live Monitoring</p>
+                <p className="text-xs text-gray-500">
+                  {settings?.platformName || 'Mew'} • Live Temperature & Humidity Monitoring
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -112,8 +119,8 @@ const ServiceDetail = () => {
               >
                 <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
               </button>
-              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                Active Telemetry
+              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                Live Telemetry ({tempUnit})
               </span>
             </div>
           </div>
@@ -142,8 +149,35 @@ const ServiceDetail = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Dynamic Operational Envelope Banner (Reflects Admin Settings) */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600">
+              <Sliders className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                Operational Compliance Thresholds Active
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">
+                  Admin Enforced
+                </span>
+              </h4>
+              <p className="text-xs text-gray-600">
+                Safe Temp: <strong className="text-blue-700 font-bold">{formatTemp(settings.iot.minTempThreshold)} to {formatTemp(settings.iot.maxTempThreshold)}</strong> • 
+                Max Humidity: <strong className="text-teal-700 font-bold">{settings.iot.humidityThreshold}%</strong> • 
+                Spike Grace: <strong className="text-gray-700 font-bold">{settings.iot.alertGracePeriodMinutes} mins</strong>
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-200">
+            <span>Unit: <strong className="text-gray-800">{tempUnit}</strong></span>
+            <span>•</span>
+            <span>Polling: <strong className="text-gray-800">{settings.iot.telemetryPollingIntervalSeconds}s</strong></span>
+          </div>
+        </div>
+
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
@@ -187,8 +221,11 @@ const ServiceDetail = () => {
 
         {/* Temperature and Humidity Status Section */}
         <div className="bg-white rounded-xl shadow-md mb-6 overflow-hidden">
-          <div className="bg-gradient-to-r from-navy-600 to-primary-600 p-4">
-            <h2 className="text-xl font-bold text-white">Temperature and Humidity Status</h2>
+          <div className="bg-gradient-to-r from-navy-600 to-primary-600 p-4 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-white">Temperature and Humidity Telemetry</h2>
+            <span className="text-xs text-navy-100 font-medium">
+              Real-time feed ({settings.iot.telemetryPollingIntervalSeconds}s refresh)
+            </span>
           </div>
 
           <div className="p-6">
@@ -205,64 +242,93 @@ const ServiceDetail = () => {
                   value={filterSearch}
                   onChange={(e) => setFilterSearch(e.target.value)}
                   placeholder="Filter sensors..."
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
                 />
               </div>
             </div>
 
-            {/* Data Table */}
+            {/* Data Table with dynamic units and alert checks */}
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b-2 border-gray-200">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Location</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Sensor Name</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Temperature (°C)</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Humidity (%)</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Last Seen</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">ID</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Location</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Sensor Name</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+                      Temperature ({tempUnit})
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Humidity (%)</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Compliance</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Last Seen</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredSensors.map((sensor) => (
-                    <tr 
-                      key={sensor.id} 
-                      className={`border-b border-gray-100 transition-colors ${
-                        sensor.status === 'offline' ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      <td className="px-4 py-4 text-sm text-gray-800">{sensor.id}</td>
-                      <td className="px-4 py-4 text-sm text-gray-800">{sensor.location}</td>
-                      <td className="px-4 py-4 text-sm font-medium text-gray-800">{sensor.name}</td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-2">
-                          <Thermometer className="w-4 h-4 text-red-500" />
-                          <span className="text-sm font-medium text-gray-800">
-                            {sensor.temperature !== null ? `${sensor.temperature}°C` : 'N/A'}
+                  {filteredSensors.map((sensor) => {
+                    const alarmStatus = checkSensorAlarm(sensor.temperature, sensor.humidity);
+
+                    return (
+                      <tr 
+                        key={sensor.id} 
+                        className={`border-b border-gray-100 transition-colors ${
+                          sensor.status === 'offline' ? 'bg-red-50/60 hover:bg-red-100' : 'hover:bg-gray-50'
+                        }`}
+                      >
+                        <td className="px-4 py-4 text-sm text-gray-800 font-mono">#{sensor.id}</td>
+                        <td className="px-4 py-4 text-sm text-gray-800">{sensor.location}</td>
+                        <td className="px-4 py-4 text-sm font-medium text-gray-800">{sensor.name}</td>
+                        
+                        {/* Dynamic Temperature Unit Formatted */}
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-2">
+                            <Thermometer className="w-4 h-4 text-red-500" />
+                            <span className="text-sm font-bold text-gray-800">
+                              {formatTemp(sensor.temperature)}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-2">
+                            <Droplets className="w-4 h-4 text-blue-500" />
+                            <span className="text-sm font-medium text-gray-800">
+                              {sensor.humidity !== null ? `${sensor.humidity}%` : 'N/A'}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Regulatory Compliance Pill */}
+                        <td className="px-4 py-4">
+                          {alarmStatus.alarm ? (
+                            <span 
+                              className="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200 inline-flex items-center gap-1"
+                              title={alarmStatus.reason}
+                            >
+                              <AlertTriangle className="w-3 h-3 text-amber-700" />
+                              Breach
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-green-50 text-green-700 border border-green-200 inline-flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-green-600" />
+                              Safe
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="px-4 py-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            sensor.status === 'online' 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-red-100 text-red-700'
+                          }`}>
+                            {sensor.status}
                           </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-2">
-                          <Droplets className="w-4 h-4 text-blue-500" />
-                          <span className="text-sm font-medium text-gray-800">
-                            {sensor.humidity !== null ? `${sensor.humidity}%` : 'N/A'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          sensor.status === 'online' 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-red-100 text-red-700'
-                        }`}>
-                          {sensor.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">{sensor.lastSeen || 'Just now'}</td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-4 py-4 text-xs text-gray-600">{sensor.lastSeen || 'Just now'}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
