@@ -10,6 +10,7 @@ from app.routers import (
     services_router,
     admin_router,
     users_router,
+    settings_router,
 )
 
 
@@ -51,6 +52,7 @@ app.include_router(auth_router)
 app.include_router(services_router)
 app.include_router(admin_router)
 app.include_router(users_router)
+app.include_router(settings_router)
 
 
 @app.get("/")

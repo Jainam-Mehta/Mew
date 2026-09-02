@@ -8,6 +8,7 @@ import {
   Calendar, TrendingUp, Activity, AlertCircle, X, Shield
 } from 'lucide-react';
 import MewIcon from '../components/MewIcon';
+import AdminSettings from '../components/admin/AdminSettings';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -493,13 +494,7 @@ const AdminDashboard = () => {
         {activeTab === 'overview' && renderOverview()}
         {activeTab === 'users' && renderUsers()}
         {activeTab === 'subscriptions' && renderSubscriptions()}
-        {activeTab === 'settings' && (
-          <div className="bg-white rounded-xl shadow-md p-8 text-center">
-            <Settings className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-xl font-bold text-gray-800 mb-2">System Settings</h3>
-            <p className="text-gray-600">FastAPI backend is operational and connected.</p>
-          </div>
-        )}
+        {activeTab === 'settings' && <AdminSettings />}
       </main>
 
       {/* Add / Edit User Modal */}
