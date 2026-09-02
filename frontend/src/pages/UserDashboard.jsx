@@ -58,6 +58,7 @@ const UserDashboard = () => {
   });
 
   useEffect(() => {
+    // Load services from API if available
     api.get('/services')
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
@@ -84,17 +85,28 @@ const UserDashboard = () => {
       });
   }, []);
 
+  // Strict check preserving original user service access
+  const hasAccess = (serviceId) => {
+    if (user?.role === 'admin') return true;
+    if (user?.subscribedServices && Array.isArray(user.subscribedServices)) {
+      return user.subscribedServices.includes(serviceId);
+    }
+    const svc = services.find((s) => s.id === serviceId);
+    return svc ? (svc.is_accessible ?? svc.subscribed ?? false) : false;
+  };
+
   const handleServiceClick = (service) => {
-    if (service.subscribed) {
+    if (hasAccess(service.id)) {
       navigate(`/service/${service.id}`);
     } else {
-      setSelectedServiceToUpgrade(service);
-      setShowContactModal(true);
+      navigate(`/subscription-required/${service.id}`);
     }
   };
 
   const cleanPhone = (contact.supportPhone || '').replace(/[^0-9+]/g, '');
   const cleanWhatsApp = (contact.supportWhatsApp || '').replace(/[^0-9]/g, '');
+
+  const activeServicesCount = user?.subscribedServices?.length ?? services.filter((s) => hasAccess(s.id)).length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -156,7 +168,7 @@ const UserDashboard = () => {
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase">Active Subscriptions</p>
               <h4 className="text-2xl font-bold text-gray-800">
-                {services.filter((s) => s.subscribed).length} of {services.length}
+                {activeServicesCount} of {services.length}
               </h4>
             </div>
           </div>
@@ -188,14 +200,14 @@ const UserDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service) => {
             const Icon = service.icon;
-            const isSubscribed = service.subscribed;
+            const isAccessible = hasAccess(service.id);
 
             return (
               <div
                 key={service.id}
                 onClick={() => handleServiceClick(service)}
                 className={`bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl cursor-pointer group border ${
-                  isSubscribed ? 'border-gray-200' : 'border-red-200 opacity-90'
+                  isAccessible ? 'border-gray-200' : 'border-red-200 opacity-80'
                 }`}
               >
                 {/* Card Header with Gradient */}
@@ -207,7 +219,7 @@ const UserDashboard = () => {
                     <div className={`p-3 rounded-xl bg-gradient-to-br ${service.color} text-white shadow-md group-hover:scale-110 transition-transform`}>
                       <Icon className="w-7 h-7" />
                     </div>
-                    {isSubscribed ? (
+                    {isAccessible ? (
                       <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-1 rounded-full border border-green-200">
                         Active
                       </span>
@@ -226,7 +238,7 @@ const UserDashboard = () => {
                   </p>
 
                   {/* Stats or Subscription Lock Notice */}
-                  {isSubscribed ? (
+                  {isAccessible ? (
                     <>
                       <div className="space-y-2 mb-4 bg-gray-50 p-3 rounded-lg">
                         {service.stats && Object.entries(service.stats).map(([key, value]) => (
@@ -236,7 +248,13 @@ const UserDashboard = () => {
                           </div>
                         ))}
                       </div>
-                      <button className="w-full btn-primary flex items-center justify-center gap-2 group-hover:shadow-lg text-sm">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/service/${service.id}`);
+                        }}
+                        className="w-full btn-primary flex items-center justify-center gap-2 group-hover:shadow-lg text-sm"
+                      >
                         View Dashboard
                         <ChevronRight className="w-4 h-4" />
                       </button>
@@ -251,12 +269,11 @@ const UserDashboard = () => {
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedServiceToUpgrade(service);
-                          setShowContactModal(true);
+                          navigate(`/subscription-required/${service.id}`);
                         }}
                         className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold py-2.5 rounded-lg hover:from-red-600 hover:to-red-700 transition-all flex items-center justify-center gap-2 text-sm shadow-sm"
                       >
-                        Contact Sales to Unlock
+                        Contact Sales
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
