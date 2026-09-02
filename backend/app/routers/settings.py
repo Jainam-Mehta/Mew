@@ -55,11 +55,23 @@ DEFAULT_SETTINGS = {
     "iot": {
         "temperatureUnit": "C",
         "telemetryPollingIntervalSeconds": 15,
+        # Sheela (Cold Storage)
         "minTempThreshold": 2.0,
         "maxTempThreshold": 8.0,
         "humidityThreshold": 85.0,
         "alertGracePeriodMinutes": 5,
-        "sensorOfflineThresholdMinutes": 15
+        # Mohan (Industrial Equipment Analytics)
+        "maxEquipmentTempThreshold": 75.0,
+        "vibrationLimitMms": 4.5,
+        "currentDrawLimitAmps": 32.0,
+        "maintenanceIntervalHours": 500,
+        "uptimeSlaPercent": 99.0,
+        # Godbaldeshlalputin (IoT Device Management Platform)
+        "sensorOfflineThresholdMinutes": 15,
+        "monthlyDataCapGb": 2.0,
+        "lowBatteryThresholdVolts": 3.3,
+        "maxPacketLossPercent": 5.0,
+        "autoOtaUpdates": False
     },
     "notifications": {
         "emailAlertsEnabled": True,

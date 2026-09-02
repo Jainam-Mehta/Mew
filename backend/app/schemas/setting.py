@@ -23,13 +23,29 @@ class SecuritySettings(BaseModel):
 
 
 class IoTSettings(BaseModel):
+    # Global Ingestion Settings
     temperatureUnit: str = "C"  # "C" or "F"
     telemetryPollingIntervalSeconds: int = 15
+
+    # Service 1: Sheela (Cold Storage Monitoring)
     minTempThreshold: float = 2.0
     maxTempThreshold: float = 8.0
     humidityThreshold: float = 85.0
     alertGracePeriodMinutes: int = 5
+
+    # Service 2: Mohan (Industrial Equipment Analytics)
+    maxEquipmentTempThreshold: float = 75.0
+    vibrationLimitMms: float = 4.5
+    currentDrawLimitAmps: float = 32.0
+    maintenanceIntervalHours: int = 500
+    uptimeSlaPercent: float = 99.0
+
+    # Service 3: Godbaldeshlalputin (IoT Device Management Platform)
     sensorOfflineThresholdMinutes: int = 15
+    monthlyDataCapGb: float = 2.0
+    lowBatteryThresholdVolts: float = 3.3
+    maxPacketLossPercent: float = 5.0
+    autoOtaUpdates: bool = False
 
 
 class NotificationSettings(BaseModel):
