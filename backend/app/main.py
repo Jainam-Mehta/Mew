@@ -11,6 +11,7 @@ from app.routers import (
     admin_router,
     users_router,
     settings_router,
+    public_settings_router,
 )
 
 
@@ -53,6 +54,7 @@ app.include_router(services_router)
 app.include_router(admin_router)
 app.include_router(users_router)
 app.include_router(settings_router)
+app.include_router(public_settings_router)
 
 
 @app.get("/")

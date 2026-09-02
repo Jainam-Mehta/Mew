@@ -5,7 +5,7 @@ import api from '../api/client';
 import { 
   LogOut, User, Bell, Settings, Activity, 
   TrendingUp, Thermometer, Box, Cpu,
-  ChevronRight, Clock
+  ChevronRight, Clock, Phone, MessageCircle, Mail, X, Sparkles
 } from 'lucide-react';
 import MewIcon from '../components/MewIcon';
 
@@ -46,6 +46,16 @@ const UserDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [services, setServices] = useState(DEFAULT_SERVICES);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [selectedServiceToUpgrade, setSelectedServiceToUpgrade] = useState(null);
+
+  // Dynamic Contact Information from Admin Settings
+  const [contact, setContact] = useState({
+    supportPhone: '+91 90904 80044',
+    supportWhatsApp: '+91 91961 94288',
+    supportEmail: 'sales@company.com',
+    companyName: 'Mew Telematics & Cold Chain Solutions'
+  });
 
   useEffect(() => {
     api.get('/services')
@@ -59,182 +69,194 @@ const UserDashboard = () => {
         }
       })
       .catch((err) => {
-        console.warn('Could not fetch services from API, using default data:', err);
+        console.warn('Using default services:', err);
       });
-  }, [user]);
 
-  const hasAccess = (service) => {
-    if (typeof service.is_accessible === 'boolean') {
-      return service.is_accessible;
-    }
-    return user?.subscribedServices?.includes(service.id);
-  };
+    // Fetch dynamic contact details configured by Admin
+    api.get('/settings/contact')
+      .then((data) => {
+        if (data) {
+          setContact((prev) => ({ ...prev, ...data }));
+        }
+      })
+      .catch((err) => {
+        console.warn('Using fallback contact details:', err);
+      });
+  }, []);
 
   const handleServiceClick = (service) => {
-    if (hasAccess(service)) {
+    if (service.subscribed) {
       navigate(`/service/${service.id}`);
     } else {
-      navigate(`/subscription-required/${service.id}`);
+      setSelectedServiceToUpgrade(service);
+      setShowContactModal(true);
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+  const cleanPhone = (contact.supportPhone || '').replace(/[^0-9+]/g, '');
+  const cleanWhatsApp = (contact.supportWhatsApp || '').replace(/[^0-9]/g, '');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-gray-50">
+      {/* Top Navigation */}
+      <nav className="bg-navy-700 text-white shadow-lg sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-pink-400 to-purple-500 rounded-lg flex items-center justify-center">
-                <MewIcon className="w-8 h-8" />
-              </div>
+              <MewIcon className="w-10 h-10" />
               <div>
-                <h1 className="text-xl font-bold text-gray-800">Mew</h1>
-                <p className="text-xs text-gray-500">Dashboard</p>
+                <span className="text-xl font-bold tracking-tight">Mew</span>
+                <span className="text-xs text-navy-200 block">Dashboard</span>
               </div>
             </div>
 
-            {/* User menu */}
+            {/* User Info & Actions */}
             <div className="flex items-center gap-4">
-              <button className="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-              
-              <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-800">{user?.name}</p>
-                  <p className="text-xs text-gray-500">{user?.email}</p>
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-full bg-primary-500 flex items-center justify-center font-bold text-white shadow">
+                  {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                 </div>
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-navy-600 rounded-full flex items-center justify-center text-white font-semibold">
-                  {user?.name?.charAt(0).toUpperCase()}
+                <div className="hidden sm:block">
+                  <div className="text-sm font-semibold">{user?.name}</div>
+                  <div className="text-xs text-navy-200 capitalize">{user?.role}</div>
                 </div>
               </div>
 
               <button
-                onClick={handleLogout}
-                className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                title="Logout"
+                onClick={logout}
+                className="p-2 hover:bg-navy-600 rounded-lg text-navy-200 hover:text-white transition-colors"
+                title="Sign out"
               >
                 <LogOut className="w-5 h-5" />
               </button>
             </div>
           </div>
         </div>
-      </header>
+      </nav>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">
-            Welcome back, {user?.name}!
-          </h2>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Welcome back, {user?.name || 'User'}!
+          </h1>
           <p className="text-gray-600">
-            Here's an overview of your subscribed services and their current status.
+            Select a service below to access its dedicated dashboard and monitoring tools.
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between mb-2">
-              <Activity className="w-8 h-8 text-green-500" />
-              <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded">Active</span>
+        {/* Quick Stats Overview */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-primary-600">
+              <Activity className="w-6 h-6" />
             </div>
-            <p className="text-2xl font-bold text-gray-800">{user?.subscribedServices?.length || 0}</p>
-            <p className="text-sm text-gray-600">Active Services</p>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase">Active Subscriptions</p>
+              <h4 className="text-2xl font-bold text-gray-800">
+                {services.filter((s) => s.subscribed).length} of {services.length}
+              </h4>
+            </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between mb-2">
-              <TrendingUp className="w-8 h-8 text-blue-500" />
+          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 flex items-center gap-4">
+            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600">
+              <TrendingUp className="w-6 h-6" />
             </div>
-            <p className="text-2xl font-bold text-gray-800">98.5%</p>
-            <p className="text-sm text-gray-600">Uptime</p>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase">System Status</p>
+              <h4 className="text-2xl font-bold text-green-600">Operational</h4>
+            </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between mb-2">
-              <Bell className="w-8 h-8 text-orange-500" />
+          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 flex items-center gap-4">
+            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
+              <Clock className="w-6 h-6" />
             </div>
-            <p className="text-2xl font-bold text-gray-800">3</p>
-            <p className="text-sm text-gray-600">Active Alerts</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between mb-2">
-              <Clock className="w-8 h-8 text-purple-500" />
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase">Direct Desk</p>
+              <h4 className="text-sm font-bold text-gray-800 truncate" title={contact.supportPhone}>
+                {contact.supportPhone}
+              </h4>
             </div>
-            <p className="text-2xl font-bold text-gray-800">24/7</p>
-            <p className="text-sm text-gray-600">Monitoring</p>
           </div>
         </div>
 
-        {/* Services Section */}
-        <div className="mb-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">Your Services</h3>
-        </div>
-
+        {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service) => {
-            const IconComponent = service.icon;
-            const isAccessible = hasAccess(service);
+            const Icon = service.icon;
+            const isSubscribed = service.subscribed;
 
             return (
               <div
                 key={service.id}
                 onClick={() => handleServiceClick(service)}
-                className={`relative bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer group ${
-                  !isAccessible ? 'opacity-75' : ''
+                className={`bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl cursor-pointer group border ${
+                  isSubscribed ? 'border-gray-200' : 'border-red-200 opacity-90'
                 }`}
               >
-                {/* Gradient Header */}
-                <div className={`h-32 bg-gradient-to-br ${service.color} p-6 relative overflow-hidden`}>
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
-                  <IconComponent className="w-12 h-12 text-white mb-2" />
-                  {!isAccessible && (
-                    <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                      Locked
-                    </div>
-                  )}
-                </div>
+                {/* Card Header with Gradient */}
+                <div className={`h-3 bg-gradient-to-r ${service.color}`} />
 
-                {/* Content */}
                 <div className="p-6">
-                  <h4 className="text-lg font-bold text-gray-800 mb-2">{service.name}</h4>
-                  <p className="text-sm text-gray-600 mb-4">{service.description}</p>
+                  {/* Icon & Title */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`p-3 rounded-xl bg-gradient-to-br ${service.color} text-white shadow-md group-hover:scale-110 transition-transform`}>
+                      <Icon className="w-7 h-7" />
+                    </div>
+                    {isSubscribed ? (
+                      <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-1 rounded-full border border-green-200">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-1 rounded-full border border-red-200">
+                        Locked
+                      </span>
+                    )}
+                  </div>
 
-                  {isAccessible ? (
+                  <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-primary-600 transition-colors">
+                    {service.name}
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-6 line-clamp-2">
+                    {service.description}
+                  </p>
+
+                  {/* Stats or Subscription Lock Notice */}
+                  {isSubscribed ? (
                     <>
-                      <div className="space-y-2 mb-4">
-                        {Object.entries(service.stats).map(([key, value]) => (
-                          <div key={key} className="flex justify-between text-sm">
-                            <span className="text-gray-600 capitalize">{key}:</span>
-                            <span className="font-semibold text-gray-800">{value}</span>
+                      <div className="space-y-2 mb-4 bg-gray-50 p-3 rounded-lg">
+                        {service.stats && Object.entries(service.stats).map(([key, value]) => (
+                          <div key={key} className="flex justify-between text-xs">
+                            <span className="text-gray-600 capitalize font-medium">{key}:</span>
+                            <span className="font-bold text-gray-800">{value}</span>
                           </div>
                         ))}
                       </div>
-                      <button className="w-full btn-primary flex items-center justify-center gap-2 group-hover:shadow-lg">
+                      <button className="w-full btn-primary flex items-center justify-center gap-2 group-hover:shadow-lg text-sm">
                         View Dashboard
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     </>
                   ) : (
                     <div className="space-y-3">
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                      <div className="bg-red-50 border border-red-100 rounded-lg p-3">
                         <p className="text-xs text-red-700 font-medium">
-                          Subscription Required
+                          Subscription required to access live telemetry.
                         </p>
                       </div>
-                      <button className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white font-medium py-3 rounded-lg hover:from-red-600 hover:to-red-700 transition-all flex items-center justify-center gap-2">
-                        Contact Sales
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedServiceToUpgrade(service);
+                          setShowContactModal(true);
+                        }}
+                        className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold py-2.5 rounded-lg hover:from-red-600 hover:to-red-700 transition-all flex items-center justify-center gap-2 text-sm shadow-sm"
+                      >
+                        Contact Sales to Unlock
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
@@ -245,22 +267,137 @@ const UserDashboard = () => {
           })}
         </div>
 
-        {/* Help Section */}
-        <div className="mt-8 bg-gradient-to-r from-navy-600 to-primary-600 rounded-xl shadow-lg p-8 text-white">
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className="text-2xl font-bold mb-2">Need More Services?</h3>
-              <p className="text-navy-100 mb-4">
-                Contact our team to upgrade your subscription and unlock additional services.
+        {/* Help & Upgrade Section - Dynamic Contact Info */}
+        <div className="mt-8 bg-gradient-to-r from-navy-700 via-navy-800 to-primary-800 rounded-2xl shadow-xl p-8 text-white">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-xl">
+              <div className="flex items-center gap-2 text-primary-300 font-semibold text-xs uppercase tracking-wider">
+                <Sparkles className="w-4 h-4" /> Dedicated Upgrade Support
+              </div>
+              <h3 className="text-2xl font-bold tracking-tight">Need More Services or Additional Sensors?</h3>
+              <p className="text-navy-100 text-sm">
+                Our operations and engineering desk is available to provision new cold storage facilities, industrial units, and IoT telemetry gateways.
               </p>
-              <button className="bg-white text-navy-700 font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+            </div>
+
+            {/* Dynamic Contact Action Pills */}
+            <div className="flex flex-wrap sm:flex-nowrap gap-3">
+              <a
+                href={`tel:${cleanPhone}`}
+                className="flex items-center gap-2 px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium text-xs backdrop-blur-sm border border-white/10 transition-all"
+              >
+                <Phone className="w-4 h-4 text-primary-300" />
+                <span>{contact.supportPhone}</span>
+              </a>
+
+              <a
+                href={`https://wa.me/${cleanWhatsApp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-3 bg-green-500/20 hover:bg-green-500/30 text-green-300 rounded-xl font-medium text-xs backdrop-blur-sm border border-green-400/20 transition-all"
+              >
+                <MessageCircle className="w-4 h-4 text-green-400" />
+                <span>WhatsApp Desk</span>
+              </a>
+
+              <button
+                onClick={() => {
+                  setSelectedServiceToUpgrade(null);
+                  setShowContactModal(true);
+                }}
+                className="bg-white text-navy-800 hover:bg-gray-100 font-bold px-5 py-3 rounded-xl text-xs transition-colors shadow-md"
+              >
                 Contact Sales Team
               </button>
             </div>
-            <Settings className="w-16 h-16 text-navy-300" />
           </div>
         </div>
       </main>
+
+      {/* Upgrade / Contact Sales Modal */}
+      {showContactModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-100 relative">
+            <button
+              onClick={() => setShowContactModal(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-11 h-11 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">
+                  {selectedServiceToUpgrade ? `Unlock ${selectedServiceToUpgrade.name}` : 'Contact Sales & Upgrades'}
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Direct support and provisioning from {contact.companyName || 'Mew'}.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+              Connect with our dedicated sales and support engineers to activate this service or add enterprise telemetry packages to your subscription.
+            </p>
+
+            <div className="space-y-3 mb-6">
+              <a
+                href={`tel:${cleanPhone}`}
+                className="flex items-center justify-between p-3.5 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-100 transition-colors group"
+              >
+                <div className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform" />
+                  <div>
+                    <div className="text-xs font-semibold text-gray-500 uppercase">Support Hotline</div>
+                    <div className="text-sm font-bold text-blue-700">{contact.supportPhone}</div>
+                  </div>
+                </div>
+                <span className="text-xs font-bold text-blue-600 bg-white px-2.5 py-1 rounded-md shadow-xs">Call</span>
+              </a>
+
+              <a
+                href={`https://wa.me/${cleanWhatsApp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-3.5 bg-green-50 hover:bg-green-100 rounded-xl border border-green-100 transition-colors group"
+              >
+                <div className="flex items-center gap-3">
+                  <MessageCircle className="w-5 h-5 text-green-600 group-hover:scale-110 transition-transform" />
+                  <div>
+                    <div className="text-xs font-semibold text-gray-500 uppercase">WhatsApp Urgent Desk</div>
+                    <div className="text-sm font-bold text-green-700">{contact.supportWhatsApp}</div>
+                  </div>
+                </div>
+                <span className="text-xs font-bold text-green-600 bg-white px-2.5 py-1 rounded-md shadow-xs">Chat</span>
+              </a>
+
+              <a
+                href={`mailto:${contact.supportEmail}`}
+                className="flex items-center justify-between p-3.5 bg-navy-50 hover:bg-navy-100 rounded-xl border border-navy-100 transition-colors group"
+              >
+                <div className="flex items-center gap-3">
+                  <Mail className="w-5 h-5 text-navy-600 group-hover:scale-110 transition-transform" />
+                  <div>
+                    <div className="text-xs font-semibold text-gray-500 uppercase">Sales / Invoicing Email</div>
+                    <div className="text-sm font-bold text-navy-700">{contact.supportEmail}</div>
+                  </div>
+                </div>
+                <span className="text-xs font-bold text-navy-600 bg-white px-2.5 py-1 rounded-md shadow-xs">Mail</span>
+              </a>
+            </div>
+
+            <button
+              onClick={() => setShowContactModal(false)}
+              className="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm rounded-xl transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

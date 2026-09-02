@@ -28,6 +28,11 @@ router = APIRouter(
     dependencies=[Depends(get_current_admin)]
 )
 
+public_router = APIRouter(
+    prefix="/api/settings",
+    tags=["Settings"]
+)
+
 DEFAULT_SETTINGS = {
     "general": {
         "platformName": "Mew",
@@ -225,4 +230,21 @@ def send_test_alert(
     return {
         "success": True,
         "message": "Test alert notification dispatched to configured channels."
+    }
+
+
+@public_router.get("/contact")
+def get_public_contact(db: Session = Depends(get_db)):
+    """Retrieve public organization profile, support hotline, WhatsApp desk, and sales contacts."""
+    data = _load_settings_dict(db)
+    gen = data.get("general", {})
+    return {
+        "platformName": gen.get("platformName", "Mew"),
+        "tagline": gen.get("tagline", "Multi-Service Management Platform"),
+        "companyName": gen.get("companyName", "Mew Telematics & Cold Chain Solutions"),
+        "supportPhone": gen.get("supportPhone", "+91 90904 80044"),
+        "supportWhatsApp": gen.get("supportWhatsApp", "+91 91961 94288"),
+        "supportEmail": gen.get("supportEmail", "sales@company.com"),
+        "timezone": gen.get("timezone", "Asia/Kolkata"),
+        "dateFormat": gen.get("dateFormat", "DD-MMM-YYYY HH:mm"),
     }
