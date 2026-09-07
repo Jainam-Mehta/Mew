@@ -95,9 +95,9 @@ const Login = () => {
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-xs font-semibold text-green-800 mb-1">Demo Users (any password):</p>
                 <div className="space-y-1">
-                  <p className="text-xs text-green-700">• user1@demo.com - Access: Sheela only</p>
-                  <p className="text-xs text-green-700">• user2@demo.com - Access: Sheela + Mohan</p>
-                  <p className="text-xs text-green-700">• user3@demo.com - Access: All services</p>
+                  <p className="text-xs text-green-700">• user1@demo.com - Access: IoT Telemetry Engine only</p>
+                  <p className="text-xs text-green-700">• user2@demo.com - Access: IoT Telemetry + Machinery Diagnostics</p>
+                  <p className="text-xs text-green-700">• user3@demo.com - Access: All 3 Technical Services</p>
                 </div>
               </div>
             </div>

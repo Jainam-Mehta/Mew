@@ -11,7 +11,7 @@ import {
 
 const AdminSettings = () => {
   const { refreshSettings } = useSettings();
-  const [activeCategory, setActiveCategory] = useState('iot');
+  const [activeCategory, setActiveCategory] = useState('general');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -41,18 +41,18 @@ const AdminSettings = () => {
       // Global Ingestion
       temperatureUnit: 'C',
       telemetryPollingIntervalSeconds: 15,
-      // Service 1: Sheela
+      // Service 1: IoT Environmental Telemetry Engine
       minTempThreshold: 2.0,
       maxTempThreshold: 8.0,
       humidityThreshold: 85.0,
       alertGracePeriodMinutes: 5,
-      // Service 2: Mohan
+      // Service 2: Industrial Machinery Diagnostics
       maxEquipmentTempThreshold: 75.0,
       vibrationLimitMms: 4.5,
       currentDrawLimitAmps: 32.0,
       maintenanceIntervalHours: 500,
       uptimeSlaPercent: 99.0,
-      // Service 3: Godbaldeshlalputin
+      // Service 3: Edge Gateway & Device Orchestrator
       sensorOfflineThresholdMinutes: 15,
       monthlyDataCapGb: 2.0,
       lowBatteryThresholdVolts: 3.3,
@@ -176,10 +176,8 @@ const AdminSettings = () => {
   };
 
   const categories = [
-    { id: 'iot', label: 'All Services Parameters', icon: Sliders, desc: 'Rules for Sheela, Mohan & Godbaldeshlalputin' },
     { id: 'general', label: 'Company & Localization', icon: Building2, desc: 'Organization profile, contacts & timezone' },
     { id: 'security', label: 'Security & Access', icon: ShieldCheck, desc: 'Admin credentials & authentication policy' },
-    { id: 'notifications', label: 'Alerting & Webhooks', icon: Bell, desc: 'Incident dispatch & webhook integrations' },
   ];
 
   return (
@@ -252,347 +250,10 @@ const AdminSettings = () => {
         {/* Content Area */}
         <div className="lg:col-span-3 space-y-6">
           {/* ========================================================= */}
-          {/* 1. All Services & IoT Rules (Sheela, Mohan, Godbaldeshlalputin) */}
-          {/* ========================================================= */}
-          {activeCategory === 'iot' && (
-            <div className="space-y-6">
-              {/* Global Telemetry Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
-                <div className="border-b border-gray-100 pb-4">
-                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    <Sliders className="w-5 h-5 text-primary-600" /> Global Ingestion & Sampling Parameters
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    Platform-wide units and telemetry polling frequency applied across all services.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    <label className="block text-sm font-semibold text-gray-800 mb-1">Temperature Unit Preference</label>
-                    <p className="text-xs text-gray-500 mb-3">Global unit used across telemetry tables and alarm notifications.</p>
-                    <div className="flex gap-3">
-                      <button
-                        type="button"
-                        onClick={() => handleSettingChange('iot', 'temperatureUnit', 'C')}
-                        className={`flex-1 py-2 px-3 rounded-lg font-bold text-sm border transition-all ${
-                          settings.iot.temperatureUnit === 'C'
-                            ? 'bg-blue-600 text-white border-blue-600 shadow'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
-                        }`}
-                      >
-                        Celsius (°C)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSettingChange('iot', 'temperatureUnit', 'F')}
-                        className={`flex-1 py-2 px-3 rounded-lg font-bold text-sm border transition-all ${
-                          settings.iot.temperatureUnit === 'F'
-                            ? 'bg-blue-600 text-white border-blue-600 shadow'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
-                        }`}
-                      >
-                        Fahrenheit (°F)
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    <label className="block text-sm font-semibold text-gray-800 mb-1">Telemetry Sampling Frequency</label>
-                    <p className="text-xs text-gray-500 mb-3">Ingestion rate between sensor telemetry broadcasts.</p>
-                    <select
-                      value={settings.iot.telemetryPollingIntervalSeconds}
-                      onChange={(e) => handleSettingChange('iot', 'telemetryPollingIntervalSeconds', parseInt(e.target.value))}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium outline-none"
-                    >
-                      <option value={5}>5 Seconds (High Precision)</option>
-                      <option value={15}>15 Seconds (Standard Recommended)</option>
-                      <option value={30}>30 Seconds</option>
-                      <option value={60}>60 Seconds (Low Bandwidth)</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Service 1: Sheela (Cold Storage) */}
-              <div className="bg-white rounded-2xl shadow-sm border border-blue-100 p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="p-2 rounded-lg bg-blue-100 text-blue-700">
-                      <Thermometer className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-gray-800 text-base">Service 1: Sheela (Cold Storage Monitoring)</h4>
-                      <p className="text-xs text-gray-500">Smart agriculture, pharmaceutical cold chain, and food safety thresholds.</p>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-bold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-200">
-                    Active
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-1">
-                  <div className="p-3.5 bg-blue-50/60 rounded-xl border border-blue-100">
-                    <label className="block text-xs font-semibold text-blue-900 mb-1">Min Safe Temp (°C)</label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      value={settings.iot.minTempThreshold}
-                      onChange={(e) => handleSettingChange('iot', 'minTempThreshold', parseFloat(e.target.value))}
-                      className="w-full px-3 py-2 bg-white border border-blue-200 rounded-lg text-sm font-bold text-blue-800 outline-none"
-                    />
-                    <span className="text-[10px] text-blue-600 mt-1 block">Under-cooling freeze alert</span>
-                  </div>
-
-                  <div className="p-3.5 bg-red-50/60 rounded-xl border border-red-100">
-                    <label className="block text-xs font-semibold text-red-900 mb-1">Max Safe Temp (°C)</label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      value={settings.iot.maxTempThreshold}
-                      onChange={(e) => handleSettingChange('iot', 'maxTempThreshold', parseFloat(e.target.value))}
-                      className="w-full px-3 py-2 bg-white border border-red-200 rounded-lg text-sm font-bold text-red-800 outline-none"
-                    />
-                    <span className="text-[10px] text-red-600 mt-1 block">Refrigeration breach alarm</span>
-                  </div>
-
-                  <div className="p-3.5 bg-teal-50/60 rounded-xl border border-teal-100">
-                    <label className="block text-xs font-semibold text-teal-900 mb-1">Max Relative Humidity (%)</label>
-                    <input
-                      type="number"
-                      step="1"
-                      value={settings.iot.humidityThreshold}
-                      onChange={(e) => handleSettingChange('iot', 'humidityThreshold', parseFloat(e.target.value))}
-                      className="w-full px-3 py-2 bg-white border border-teal-200 rounded-lg text-sm font-bold text-teal-800 outline-none"
-                    />
-                    <span className="text-[10px] text-teal-600 mt-1 block">Condensation hazard limit</span>
-                  </div>
-
-                  <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200">
-                    <label className="block text-xs font-semibold text-gray-800 mb-1">Door-Spike Grace Period</label>
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="number"
-                        min={1}
-                        max={30}
-                        value={settings.iot.alertGracePeriodMinutes}
-                        onChange={(e) => handleSettingChange('iot', 'alertGracePeriodMinutes', parseInt(e.target.value) || 5)}
-                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold outline-none"
-                      />
-                      <span className="text-xs text-gray-600">min</span>
-                    </div>
-                    <span className="text-[10px] text-gray-500 mt-1 block">Suppresses door-opening spikes</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Service 2: Mohan (Industrial Equipment Analytics) */}
-              <div className="bg-white rounded-2xl shadow-sm border border-purple-100 p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="p-2 rounded-lg bg-purple-100 text-purple-700">
-                      <Box className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-gray-800 text-base">Service 2: Mohan (Industrial Equipment Analytics)</h4>
-                      <p className="text-xs text-gray-500">Machinery vibration analysis, thermal overload protection, and preventive maintenance.</p>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-bold px-2.5 py-1 bg-purple-50 text-purple-700 rounded-full border border-purple-200">
-                    Analytics
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-5 gap-3.5 pt-1">
-                  <div className="p-3 bg-purple-50/60 rounded-xl border border-purple-100">
-                    <label className="block text-xs font-semibold text-purple-900 mb-1">Max Equipment Temp</label>
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        step="1"
-                        value={settings.iot.maxEquipmentTempThreshold}
-                        onChange={(e) => handleSettingChange('iot', 'maxEquipmentTempThreshold', parseFloat(e.target.value))}
-                        className="w-full px-2.5 py-1.5 bg-white border border-purple-200 rounded-lg text-sm font-bold text-purple-800 outline-none"
-                      />
-                      <span className="text-xs text-purple-700 font-semibold">°C</span>
-                    </div>
-                    <span className="text-[10px] text-purple-600 mt-1 block">Overheat cutoff limit</span>
-                  </div>
-
-                  <div className="p-3 bg-purple-50/60 rounded-xl border border-purple-100">
-                    <label className="block text-xs font-semibold text-purple-900 mb-1">Peak Vibration Limit</label>
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        step="0.1"
-                        value={settings.iot.vibrationLimitMms}
-                        onChange={(e) => handleSettingChange('iot', 'vibrationLimitMms', parseFloat(e.target.value))}
-                        className="w-full px-2.5 py-1.5 bg-white border border-purple-200 rounded-lg text-sm font-bold text-purple-800 outline-none"
-                      />
-                      <span className="text-[11px] text-purple-700 font-semibold">mm/s</span>
-                    </div>
-                    <span className="text-[10px] text-purple-600 mt-1 block">Bearing/shaft wear alarm</span>
-                  </div>
-
-                  <div className="p-3 bg-purple-50/60 rounded-xl border border-purple-100">
-                    <label className="block text-xs font-semibold text-purple-900 mb-1">Max Current Draw</label>
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        step="0.5"
-                        value={settings.iot.currentDrawLimitAmps}
-                        onChange={(e) => handleSettingChange('iot', 'currentDrawLimitAmps', parseFloat(e.target.value))}
-                        className="w-full px-2.5 py-1.5 bg-white border border-purple-200 rounded-lg text-sm font-bold text-purple-800 outline-none"
-                      />
-                      <span className="text-xs text-purple-700 font-semibold">A</span>
-                    </div>
-                    <span className="text-[10px] text-purple-600 mt-1 block">Motor electrical overload</span>
-                  </div>
-
-                  <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
-                    <label className="block text-xs font-semibold text-gray-800 mb-1">Maintenance Cycle</label>
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        min={50}
-                        step={50}
-                        value={settings.iot.maintenanceIntervalHours}
-                        onChange={(e) => handleSettingChange('iot', 'maintenanceIntervalHours', parseInt(e.target.value) || 500)}
-                        className="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg text-sm font-bold outline-none"
-                      />
-                      <span className="text-xs text-gray-600">Hrs</span>
-                    </div>
-                    <span className="text-[10px] text-gray-500 mt-1 block">Service overhaul interval</span>
-                  </div>
-
-                  <div className="p-3 bg-green-50/60 rounded-xl border border-green-100">
-                    <label className="block text-xs font-semibold text-green-900 mb-1">Target Uptime SLA</label>
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        step="0.1"
-                        min={90}
-                        max={100}
-                        value={settings.iot.uptimeSlaPercent}
-                        onChange={(e) => handleSettingChange('iot', 'uptimeSlaPercent', parseFloat(e.target.value))}
-                        className="w-full px-2.5 py-1.5 bg-white border border-green-200 rounded-lg text-sm font-bold text-green-800 outline-none"
-                      />
-                      <span className="text-xs text-green-700 font-semibold">%</span>
-                    </div>
-                    <span className="text-[10px] text-green-600 mt-1 block">Minimum availability SLA</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Service 3: Godbaldeshlalputin (IoT Device Management Platform) */}
-              <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="p-2 rounded-lg bg-green-100 text-green-700">
-                      <Cpu className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-gray-800 text-base">Service 3: Godbaldeshlalputin (IoT Device Management Platform)</h4>
-                      <p className="text-xs text-gray-500">Fleet management, cellular gateway connectivity, bandwidth usage, and remote updates.</p>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-bold px-2.5 py-1 bg-green-50 text-green-700 rounded-full border border-green-200">
-                    Platform
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-1">
-                  <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200">
-                    <label className="block text-xs font-semibold text-gray-800 mb-1">Heartbeat Silence Timeout</label>
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="number"
-                        min={5}
-                        max={120}
-                        value={settings.iot.sensorOfflineThresholdMinutes}
-                        onChange={(e) => handleSettingChange('iot', 'sensorOfflineThresholdMinutes', parseInt(e.target.value) || 15)}
-                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-bold outline-none"
-                      />
-                      <span className="text-xs text-gray-600">min</span>
-                    </div>
-                    <span className="text-[10px] text-gray-500 mt-1 block">Marks gateway offline</span>
-                  </div>
-
-                  <div className="p-3.5 bg-green-50/60 rounded-xl border border-green-100">
-                    <label className="block text-xs font-semibold text-green-900 mb-1">Monthly Cellular Data Cap</label>
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="number"
-                        step="0.5"
-                        min={0.5}
-                        value={settings.iot.monthlyDataCapGb}
-                        onChange={(e) => handleSettingChange('iot', 'monthlyDataCapGb', parseFloat(e.target.value))}
-                        className="w-full px-3 py-2 bg-white border border-green-200 rounded-lg text-sm font-bold text-green-800 outline-none"
-                      />
-                      <span className="text-xs text-green-700 font-semibold">GB</span>
-                    </div>
-                    <span className="text-[10px] text-green-600 mt-1 block">Per-device SIM limit</span>
-                  </div>
-
-                  <div className="p-3.5 bg-amber-50/60 rounded-xl border border-amber-100">
-                    <label className="block text-xs font-semibold text-amber-900 mb-1">Low Battery Voltage Cutoff</label>
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="number"
-                        step="0.1"
-                        min={2.0}
-                        max={12.0}
-                        value={settings.iot.lowBatteryThresholdVolts}
-                        onChange={(e) => handleSettingChange('iot', 'lowBatteryThresholdVolts', parseFloat(e.target.value))}
-                        className="w-full px-3 py-2 bg-white border border-amber-200 rounded-lg text-sm font-bold text-amber-800 outline-none"
-                      />
-                      <span className="text-xs text-amber-700 font-semibold">V</span>
-                    </div>
-                    <span className="text-[10px] text-amber-600 mt-1 block">Backup battery alarm</span>
-                  </div>
-
-                  <div className="p-3.5 bg-blue-50/60 rounded-xl border border-blue-100">
-                    <label className="block text-xs font-semibold text-blue-900 mb-1">Max Packet Loss Rate</label>
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="number"
-                        step="0.5"
-                        min={1}
-                        max={25}
-                        value={settings.iot.maxPacketLossPercent}
-                        onChange={(e) => handleSettingChange('iot', 'maxPacketLossPercent', parseFloat(e.target.value))}
-                        className="w-full px-3 py-2 bg-white border border-blue-200 rounded-lg text-sm font-bold text-blue-800 outline-none"
-                      />
-                      <span className="text-xs text-blue-700 font-semibold">%</span>
-                    </div>
-                    <span className="text-[10px] text-blue-600 mt-1 block">Network degradation trigger</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-3.5 bg-gray-50 rounded-xl border border-gray-200">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800">Automatic Over-The-Air (OTA) Firmware Updates</p>
-                    <p className="text-xs text-gray-500">Automatically push verified security patches to edge devices during low-traffic windows.</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={settings.iot.autoOtaUpdates}
-                      onChange={(e) => handleSettingChange('iot', 'autoOtaUpdates', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-                  </label>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ========================================================= */}
-          {/* 2. Company & Localization */}
+          {/* 1. Company & Localization */}
           {/* ========================================================= */}
           {activeCategory === 'general' && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-6 space-y-6">
               <div className="border-b border-gray-100 pb-4">
                 <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-primary-600" /> Organization Profile & Public Information
@@ -733,9 +394,9 @@ const AdminSettings = () => {
                     onChange={(e) => handleSettingChange('general', 'defaultServiceId', parseInt(e.target.value))}
                     className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium outline-none"
                   >
-                    <option value={1}>Sheela (Cold Storage Monitoring)</option>
-                    <option value={2}>Mohan (Industrial Equipment Analytics)</option>
-                    <option value={3}>Godbaldeshlalputin (IoT Device Platform)</option>
+                    <option value={1}>IoT Environmental Telemetry Engine (Cold Storage)</option>
+                    <option value={2}>Industrial Machinery Diagnostics</option>
+                    <option value={3}>Edge Gateway & Device Orchestrator</option>
                   </select>
                 </div>
               </div>
@@ -869,134 +530,7 @@ const AdminSettings = () => {
                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-600"></div>
                   </label>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* ========================================================= */}
-          {/* 4. Alerting & Webhooks */}
-          {/* ========================================================= */}
-          {activeCategory === 'notifications' && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
-              <div className="border-b border-gray-100 pb-4">
-                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                  <Bell className="w-5 h-5 text-orange-500" /> Incident Escalation & Webhook Integration
-                </h3>
-                <p className="text-xs text-gray-500">Configure communication pipelines for dispatching multi-service emergencies to on-duty staff.</p>
-              </div>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-800">Email Incident Bulletins</p>
-                      <p className="text-xs text-gray-500">Immediate email report whenever thresholds breach safety limits.</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={settings.notifications.emailAlertsEnabled}
-                        onChange={(e) => handleSettingChange('notifications', 'emailAlertsEnabled', e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-                    </label>
-                  </div>
-
-                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-800">WhatsApp / SMS Escalation</p>
-                      <p className="text-xs text-gray-500">Direct urgent SMS message to on-call floor supervisors.</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={settings.notifications.smsAlertsEnabled}
-                        onChange={(e) => handleSettingChange('notifications', 'smsAlertsEnabled', e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                      On-Duty Floor Manager / Contact Title
-                    </label>
-                    <input
-                      type="text"
-                      value={settings.notifications.emergencyContactName}
-                      onChange={(e) => handleSettingChange('notifications', 'emergencyContactName', e.target.value)}
-                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium outline-none focus:ring-2 focus:ring-orange-400"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                      Emergency Alert Hotline / Phone
-                    </label>
-                    <input
-                      type="text"
-                      value={settings.notifications.alertPhoneRecipient}
-                      onChange={(e) => handleSettingChange('notifications', 'alertPhoneRecipient', e.target.value)}
-                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium outline-none focus:ring-2 focus:ring-orange-400"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Incident Distribution Email List
-                  </label>
-                  <input
-                    type="email"
-                    value={settings.notifications.alertEmailRecipient}
-                    onChange={(e) => handleSettingChange('notifications', 'alertEmailRecipient', e.target.value)}
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium outline-none focus:ring-2 focus:ring-orange-400"
-                  />
-                </div>
-
-                <div className="pt-2">
-                  <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                    <Radio className="w-3.5 h-3.5 text-orange-500" /> Incident Webhook (Slack / Teams / PagerDuty)
-                  </label>
-                  <input
-                    type="url"
-                    value={settings.notifications.webhookUrl}
-                    onChange={(e) => handleSettingChange('notifications', 'webhookUrl', e.target.value)}
-                    placeholder="https://hooks.slack.com/services/..."
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium outline-none focus:ring-2 focus:ring-orange-400 font-mono"
-                  />
-                  <span className="text-[11px] text-gray-500 mt-1 block">Payload will be posted as JSON containing sensor ID, breach temperature/vibration, and timestamp.</span>
-                </div>
-
-                <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800">Verify Escalation Pipeline</p>
-                    <p className="text-xs text-gray-500">Simulate an incident alarm to verify webhooks, email delivery, and SMS routing.</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleSendTestAlert}
-                    disabled={testAlertState.loading}
-                    className="px-4 py-2 bg-orange-100 text-orange-800 hover:bg-orange-200 rounded-lg font-semibold text-xs transition-colors flex items-center gap-1.5"
-                  >
-                    <Radio className="w-4 h-4" />
-                    {testAlertState.loading ? 'Dispatching...' : 'Dispatch Test Alert'}
-                  </button>
-                </div>
-
-                {testAlertState.message && (
-                  <div className={`p-3 rounded-lg text-xs font-medium border flex items-center gap-2 animate-fade-in ${
-                    testAlertState.type === 'success' ? 'bg-green-50 text-green-800 border-green-200' : 'bg-red-50 text-red-800 border-red-200'
-                  }`}>
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>{testAlertState.message}</span>
-                  </div>
-                )}
-              </div>
+               </div>
             </div>
           )}
         </div>

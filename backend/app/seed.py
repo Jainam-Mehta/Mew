@@ -18,27 +18,27 @@ def seed_database(db: Session) -> None:
     services_data = [
         {
             "id": 1,
-            "name": "Sheela",
-            "description": "Smart Agriculture Cold Storage Monitoring",
+            "name": "IoT Environmental Telemetry Engine",
+            "description": "High-Precision Cold Storage, Ambient Temperature & Multi-Zone Environmental Monitoring",
             "icon": "Thermometer",
             "color": "from-blue-500 to-blue-600",
-            "stats": {"locations": 1, "sensors": 14, "online": 13}
+            "stats": {"locations": 1, "sensors": 14, "online": 13, "service_code": "SRV-IOT-ENV-01", "uptime": "99.98%"}
         },
         {
             "id": 2,
-            "name": "Mohan",
-            "description": "Industrial Equipment Analytics",
+            "name": "Industrial Machinery Diagnostics",
+            "description": "Predictive Equipment Health, Vibration Telemetry, Machine Current & Thermal Diagnostics",
             "icon": "Box",
             "color": "from-purple-500 to-purple-600",
-            "stats": {"devices": 8, "uptime": "99.2%", "alerts": 2}
+            "stats": {"devices": 8, "uptime": "99.4%", "alerts": 2, "service_code": "SRV-IND-MACH-02"}
         },
         {
             "id": 3,
-            "name": "Godbaldeshlalputin",
-            "description": "IoT Device Management Platform",
+            "name": "Edge Gateway & Device Orchestrator",
+            "description": "Distributed IoT Gateway Fleet Management, Mesh Routing, Telemetry Routing & Firmware OTA",
             "icon": "Cpu",
             "color": "from-green-500 to-green-600",
-            "stats": {"devices": 24, "connected": 22, "data": "1.2GB"}
+            "stats": {"devices": 24, "connected": 22, "data": "1.2GB", "service_code": "SRV-EDGE-GW-03", "uptime": "99.91%"}
         }
     ]
 
@@ -55,7 +55,7 @@ def seed_database(db: Session) -> None:
         db.add(service)
     db.flush()
 
-    # 2. Sensors for Sheela
+    # 2. Sensors for IoT Environmental Telemetry Engine (Service 1)
     sensors_data = [
         {"service_id": 1, "location": "Server Room Section 1", "name": "Temp", "temperature": 28.1, "humidity": 63.6, "status": "offline", "last_seen": "18-Aug-26 11:41"},
         {"service_id": 1, "location": "Cold Storage Room A", "name": "Storage Sensor A1", "temperature": 3.8, "humidity": 87.2, "status": "online", "last_seen": "Just now"},
@@ -141,9 +141,9 @@ def seed_database(db: Session) -> None:
 
     # 4. Activity Logs
     activity_data = [
-        {"user_name": "Rajesh Kumar", "action": "subscribed to", "service_name": "Sheela", "time_ago": "2 hours ago", "activity_type": "success"},
-        {"user_name": "Priya Sharma", "action": "renewed subscription for", "service_name": "Mohan", "time_ago": "5 hours ago", "activity_type": "success"},
-        {"user_name": "Amit Patel", "action": "upgraded to access", "service_name": "Godbaldeshlalputin", "time_ago": "1 day ago", "activity_type": "success"},
+        {"user_name": "Rajesh Kumar", "action": "subscribed to", "service_name": "IoT Environmental Telemetry Engine", "time_ago": "2 hours ago", "activity_type": "success"},
+        {"user_name": "Priya Sharma", "action": "renewed subscription for", "service_name": "Industrial Machinery Diagnostics", "time_ago": "5 hours ago", "activity_type": "success"},
+        {"user_name": "Amit Patel", "action": "upgraded to access", "service_name": "Edge Gateway & Device Orchestrator", "time_ago": "1 day ago", "activity_type": "success"},
     ]
 
     for act in activity_data:

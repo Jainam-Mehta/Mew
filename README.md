@@ -84,17 +84,17 @@ The database automatically seeds the following accounts on first startup:
 | Account | Email | Password | Access Level | Description |
 |---|---|---|---|---|
 | **Admin** | `admin@company.com` | `admin123` | Full Admin | System control, user management, metrics |
-| **Demo User 1** | `user1@demo.com` | `demo` | Sheela only | Smart agriculture cold storage monitoring |
-| **Demo User 2** | `user2@demo.com` | `demo` | Sheela + Mohan | Cold storage + Industrial equipment analytics |
-| **Demo User 3** | `user3@demo.com` | `demo` | All Services | Full access to Sheela, Mohan, and Godbaldeshlalputin |
+| **Demo User 1** | `user1@demo.com` | `demo` | IoT Telemetry only | Environmental cold storage telemetry engine |
+| **Demo User 2** | `user2@demo.com` | `demo` | Telemetry + Diagnostics | Cold storage telemetry + Industrial machinery diagnostics |
+| **Demo User 3** | `user3@demo.com` | `demo` | All Services | Full access to all 3 technical services |
 
 ---
 
 ## 🎯 Services Overview
 
-1. **Sheela** - Smart Agriculture Cold Storage Monitoring (14 Sensors, Temperature & Humidity Telemetry)
-2. **Mohan** - Industrial Equipment Analytics (Uptime & Equipment Telemetry)
-3. **Godbaldeshlalputin** - IoT Device Management Platform (Device Connectivity & Fleet Telemetry)
+1. **IoT Environmental Telemetry Engine** (`SRV-IOT-ENV-01`) - Smart Agriculture Cold Storage Monitoring (14 Sensors, Temperature & Humidity Telemetry)
+2. **Industrial Machinery Diagnostics** (`SRV-IND-MACH-02`) - Industrial Equipment Analytics (Uptime & Equipment Telemetry)
+3. **Edge Gateway & Device Orchestrator** (`SRV-EDGE-GW-03`) - IoT Device Management Platform (Device Connectivity & Fleet Telemetry)
 
 ---
 

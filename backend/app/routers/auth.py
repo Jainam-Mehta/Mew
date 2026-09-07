@@ -66,7 +66,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             db.add(user)
             db.flush()
 
-            # Default access: Service 1 (Sheela)
+            # Default access: Service 1 (IoT Environmental Telemetry Engine)
             default_sub = Subscription(
                 user_id=user.id,
                 service_id=1,
@@ -96,7 +96,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/register", response_model=TokenResponse)
 def register(request: RegisterRequest, db: Session = Depends(get_db)):
-    """Register a new user with default Sheela (Cold Storage) subscription."""
+    """Register a new user with default IoT Environmental Telemetry Engine subscription."""
     email = request.email.strip().lower()
     existing = db.query(User).filter(User.email == email).first()
     if existing:
@@ -117,7 +117,7 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
     db.add(new_user)
     db.flush()
 
-    # Default access: Service 1 (Sheela)
+    # Default access: Service 1 (IoT Environmental Telemetry Engine)
     default_sub = Subscription(
         user_id=new_user.id,
         service_id=1,

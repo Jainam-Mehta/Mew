@@ -192,10 +192,10 @@ import MewIcon from '../components/MewIcon';
 - [ ] Success notifications with happy Mew
 - [ ] Error messages with concerned Mew
 
-### Service Icons (Could use Pokémon theme)
-- **Sheela**: Could use Glaceon (ice/cold storage)
-- **Mohan**: Could use Machamp (industrial/strong)
-- **Godbaldeshlalputin**: Could use Porygon (digital/IoT)
+### Technical Service Themes
+- **IoT Environmental Telemetry Engine**: Blue theme, precision cold chain & ambient sensors
+- **Industrial Machinery Diagnostics**: Purple theme, equipment vibration & thermal analytics
+- **Edge Gateway & Device Orchestrator**: Green theme, distributed mesh & firmware orchestrator
 
 ---
 

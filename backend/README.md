@@ -7,7 +7,7 @@ Production-ready backend for the Mew Multi-Service SaaS Management Platform.
 - **FastAPI Framework**: High-performance, auto-documented asynchronous REST API.
 - **SQLAlchemy 2.0 ORM**: Clean database modeling with SQLite (`mew.db`) out-of-the-box.
 - **Argon2id & JWT Authentication**: Enterprise-grade password hashing with Argon2 and stateless JSON Web Tokens.
-- **Auto-Seeding**: Automatically initializes Admin, Demo Users 1-3, Services (Sheela, Mohan, Godbaldeshlalputin), and Cold Storage IoT sensors.
+- **Auto-Seeding**: Automatically initializes Admin, Demo Users 1-3, Services (IoT Telemetry, Machinery Diagnostics, Edge Orchestrator), and Cold Storage IoT sensors.
 - **Role-Based Access Control**: Strict segregation between `admin` and regular `user` roles.
 - **Telemetry & Sensor API**: Live sensor readings, location statistics, and uptime metrics.
 - **Admin Management Suite**: Full user provisioning, service subscription assignment, and activity audit feed.
@@ -40,7 +40,7 @@ Production-ready backend for the Mew Multi-Service SaaS Management Platform.
 
 ### Authentication (`/api/auth`)
 - `POST /api/auth/login`: Authenticates with email & password, returns JWT token.
-- `POST /api/auth/register`: Creates new user account with default Sheela access.
+- `POST /api/auth/register`: Creates new user account with default IoT Environmental Telemetry Engine access.
 - `GET /api/auth/me`: Returns current user's profile and active service IDs.
 - `POST /api/auth/logout`: Confirms client-side session termination.
 

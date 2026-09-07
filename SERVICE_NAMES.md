@@ -1,196 +1,70 @@
-# Service Names Configuration
+# Service Names & Architecture Specification
 
-## 🎯 Current Service Names
+## 🎯 Current Technical Service Names
 
-The platform now uses these custom service names:
-
-### Service 1: **Sheela**
-- **Description**: Smart Agriculture Cold Storage Monitoring
-- **Icon**: Thermometer
-- **Color**: Blue gradient (from-blue-500 to-blue-600)
-- **Features**:
-  - 1 Location
-  - 14 Sensors
-  - 13 Online sensors
-  - Temperature & Humidity monitoring
-  - Real-time alerts
-- **Default Access**: New users get access to Sheela by default
-
-### Service 2: **Mohan**
-- **Description**: Industrial Equipment Analytics
-- **Icon**: Box
-- **Color**: Purple gradient (from-purple-500 to-purple-600)
-- **Features**:
-  - 8 Devices
-  - 99.2% Uptime
-  - 2 Active alerts
-  - Equipment monitoring
-  - Maintenance tracking
-- **Default Access**: Requires subscription
-
-### Service 3: **Godbaldeshlalputin**
-- **Description**: IoT Device Management Platform
-- **Icon**: CPU/Chip
-- **Color**: Green gradient (from-green-500 to-green-600)
-- **Features**:
-  - 24 Total devices
-  - 22 Connected devices
-  - 1.2GB Data usage
-  - Remote device management
-  - Connectivity monitoring
-- **Default Access**: Requires subscription
+The Mew platform strictly utilizes technical, enterprise-grade service naming across the entire stack (Database, Seed scripts, API Schemas, Routers, and React Frontend components):
 
 ---
 
-## 📁 Files Updated
-
-The following files have been updated with the new service names:
-
-1. **src/pages/UserDashboard.jsx**
-   - Updated SERVICES array with new names
-
-2. **src/pages/ServiceDetail.jsx**
-   - Added service name mapping
-   - Dynamic title display
-
-3. **src/App.jsx**
-   - Updated SubscriptionRequiredWrapper with name mapping
-
-4. **src/pages/AdminDashboard.jsx**
-   - Updated recent activity feed
-   - Updated subscription management cards
-
-5. **src/context/AuthContext.jsx**
-   - Updated comment for default subscription (Sheela)
+### Service 1: **IoT Environmental Telemetry Engine**
+- **Service Code**: `SRV-IOT-ENV-01`
+- **Internal ID**: `1`
+- **Port**: `8081`
+- **Protocol / Ingest**: `MQTT v5.0 / Real-Time Time-Series Pipeline`
+- **Description**: High-Precision Cold Storage, Ambient Temperature & Multi-Zone Environmental Monitoring
+- **Default Port**: 8081
+- **Icon**: `Thermometer`
+- **Color**: Blue gradient (`from-blue-500 to-blue-600`)
+- **Default Access**: Granted automatically upon new account creation (Default Service ID: 1)
+- **Telemetry Specs**:
+  - 1 Primary Facility Location
+  - 14 Multi-Zone Environmental Sensors
+  - Sampling Rate: 10s
+  - 99.98% Service Uptime SLA
 
 ---
 
-## 🔧 How to Change Service Names
-
-If you need to update service names in the future:
-
-### 1. Update UserDashboard.jsx
-```javascript
-const SERVICES = [
-  {
-    id: 1,
-    name: 'Your New Name',  // Change here
-    description: 'Your description',
-    // ...
-  },
-  // ...
-];
-```
-
-### 2. Update ServiceDetail.jsx
-```javascript
-const serviceNames = {
-  '1': 'Your New Name',  // Change here
-  '2': 'Another Name',
-  '3': 'Third Name'
-};
-```
-
-### 3. Update App.jsx
-```javascript
-const serviceNames = {
-  '1': 'Your New Name',  // Change here
-  '2': 'Another Name',
-  '3': 'Third Name'
-};
-```
-
-### 4. Update AdminDashboard.jsx
-Update the activity feed and subscription cards with new names.
+### Service 2: **Industrial Machinery Diagnostics**
+- **Service Code**: `SRV-IND-MACH-02`
+- **Internal ID**: `2`
+- **Port**: `8082`
+- **Protocol / Ingest**: `Modbus TCP / High-Frequency Edge Diagnostic Pipeline`
+- **Description**: Predictive Equipment Health, Vibration Telemetry, Machine Current & Thermal Diagnostics
+- **Icon**: `Box`
+- **Color**: Purple gradient (`from-purple-500 to-purple-600`)
+- **Default Access**: Requires administrator entitlement or active subscription
+- **Telemetry Specs**:
+  - 8 Monitored Heavy Industrial Machines
+  - High-Frequency Vibration Limit: 4.5 mm/s
+  - Sampling Rate: 5s
+  - 99.42% Service Uptime SLA
 
 ---
 
-## 💡 Service Name Guidelines
-
-When choosing service names, consider:
-
-- **Memorable**: Easy to remember and pronounce
-- **Unique**: Distinguishable from each other
-- **Relevant**: Related to the service function (optional)
-- **Professional**: Appropriate for business context
-- **Length**: Not too long for UI display (Godbaldeshlalputin is at the limit!)
-
----
-
-## 🎨 Current Display Examples
-
-### Dashboard Cards
-```
-┌─────────────────────────┐
-│   🌡️  Sheela            │
-│   Smart Agriculture     │
-│   Cold Storage          │
-│   ✅ Accessible         │
-└─────────────────────────┘
-
-┌─────────────────────────┐
-│   📦  Mohan             │
-│   Industrial Equipment  │
-│   Analytics             │
-│   🔒 Subscription Req.  │
-└─────────────────────────┘
-
-┌─────────────────────────┐
-│   🖥️  Godbaldeshlalputin│
-│   IoT Device Management │
-│   Platform              │
-│   🔒 Subscription Req.  │
-└─────────────────────────┘
-```
-
-### Service Detail Page Header
-```
-← Back    Sheela
-         Temperature & Humidity Monitoring
-```
-
-### Subscription Required Screen
-```
-⚠️ Subscription Required
-
-Your current account does not have access to Mohan.
-Activate or upgrade your plan to continue...
-```
-
-### Admin Recent Activity
-```
-• John Doe subscribed to Sheela (2 hours ago)
-• Jane Smith renewed subscription for Mohan (5 hours ago)
-• Bob Johnson cancelled subscription to Godbaldeshlalputin (1 day ago)
-```
+### Service 3: **Edge Gateway & Device Orchestrator**
+- **Service Code**: `SRV-EDGE-GW-03`
+- **Internal ID**: `3`
+- **Port**: `8083`
+- **Protocol / Ingest**: `gRPC / Containerized Edge Orchestration / TLS 1.3`
+- **Description**: Distributed IoT Gateway Fleet Management, Mesh Routing, Telemetry Routing & Firmware OTA
+- **Icon**: `Cpu`
+- **Color**: Green gradient (`from-green-500 to-green-600`)
+- **Default Access**: Requires administrator entitlement or active subscription
+- **Telemetry Specs**:
+  - 24 Distributed Edge Nodes & Mesh Gateways
+  - 22 Concurrently Connected Mesh Devices
+  - Sampling Rate: 15s
+  - Remote Firmware OTA Updates
 
 ---
 
-## ✅ Testing Checklist
+## 🔒 Access Control Matrix
 
-After changing service names, test:
+| User Account | Role | IoT Telemetry (1) | Machinery Diagnostics (2) | Edge Gateway (3) |
+|---|---|:---:|:---:|:---:|
+| `admin@company.com` | Administrator | ✅ Full Access | ✅ Full Access | ✅ Full Access |
+| `user1@demo.com` | User | ✅ Active | ❌ Disabled | ❌ Disabled |
+| `user2@demo.com` | User | ✅ Active | ✅ Active | ❌ Disabled |
+| `user3@demo.com` | User | ✅ Active | ✅ Active | ✅ Active |
 
-- [ ] Dashboard displays new names correctly
-- [ ] Service cards show new names
-- [ ] Service detail pages show correct names in headers
-- [ ] Subscription required screens show correct names
-- [ ] Admin dashboard activity feed shows new names
-- [ ] Admin subscription management shows new names
-- [ ] No console errors
-- [ ] All navigation still works
-
----
-
-## 🚀 Current Status
-
-✅ **All service names successfully updated to:**
-- Service 1 → **Sheela**
-- Service 2 → **Mohan**
-- Service 3 → **Godbaldeshlalputin**
-
-The platform is fully functional with the new names!
-
----
-
-**Last Updated**: August 29, 2026
-**Status**: ✅ Complete
+*(Admins can dynamically toggle individual service access for any user at any time from Admin > Subscriptions > User Subscription Entitlements).*

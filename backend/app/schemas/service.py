@@ -10,6 +10,7 @@ class SensorOut(BaseModel):
     humidity: Optional[float] = None
     status: str
     lastSeen: Optional[str] = None
+    is_enabled: bool = True
 
     class Config:
         from_attributes = True

@@ -55,18 +55,18 @@ DEFAULT_SETTINGS = {
     "iot": {
         "temperatureUnit": "C",
         "telemetryPollingIntervalSeconds": 15,
-        # Sheela (Cold Storage)
+        # Service 1: IoT Environmental Telemetry Engine (Cold Storage)
         "minTempThreshold": 2.0,
         "maxTempThreshold": 8.0,
         "humidityThreshold": 85.0,
         "alertGracePeriodMinutes": 5,
-        # Mohan (Industrial Equipment Analytics)
+        # Service 2: Industrial Machinery Diagnostics
         "maxEquipmentTempThreshold": 75.0,
         "vibrationLimitMms": 4.5,
         "currentDrawLimitAmps": 32.0,
         "maintenanceIntervalHours": 500,
         "uptimeSlaPercent": 99.0,
-        # Godbaldeshlalputin (IoT Device Management Platform)
+        # Service 3: Edge Gateway & Device Orchestrator
         "sensorOfflineThresholdMinutes": 15,
         "monthlyDataCapGb": 2.0,
         "lowBatteryThresholdVolts": 3.3,
@@ -232,7 +232,7 @@ def send_test_alert(
     log = ActivityLog(
         user_name=current_admin.name,
         action="dispatched emergency test alert for",
-        service_name="Sheela Cold Storage",
+        service_name="IoT Environmental Telemetry Engine",
         time_ago="Just now",
         activity_type="warning"
     )

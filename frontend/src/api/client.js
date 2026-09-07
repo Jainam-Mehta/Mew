@@ -48,9 +48,11 @@ async function request(endpoint, options = {}) {
 export const api = {
   get: (endpoint, options) => request(endpoint, { ...options, method: 'GET' }),
   post: (endpoint, body, options) =>
-    request(endpoint, { ...options, method: 'POST', body: JSON.stringify(body) }),
+    request(endpoint, { ...options, method: 'POST', body: body !== undefined ? JSON.stringify(body) : undefined }),
   put: (endpoint, body, options) =>
-    request(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) }),
+    request(endpoint, { ...options, method: 'PUT', body: body !== undefined ? JSON.stringify(body) : undefined }),
+  patch: (endpoint, body, options) =>
+    request(endpoint, { ...options, method: 'PATCH', body: body !== undefined ? JSON.stringify(body) : undefined }),
   delete: (endpoint, options) => request(endpoint, { ...options, method: 'DELETE' }),
 };
 

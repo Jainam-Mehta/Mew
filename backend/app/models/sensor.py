@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -14,6 +14,8 @@ class Sensor(Base):
     humidity = Column(Float, nullable=True)
     status = Column(String, default="online")  # "online", "offline"
     last_seen = Column(String, nullable=True)
+    is_enabled = Column(Boolean, default=True, nullable=False)
 
     # Relationships
     service = relationship("Service", back_populates="sensors")
+

@@ -28,6 +28,45 @@ class SubscriptionBreakdownOut(BaseModel):
     plan: str
 
 
+class LiveUserOut(BaseModel):
+    id: int
+    name: str
+    email: str
+    role: str
+    status: str
+    city: str
+    region: str
+    lat: float
+    lng: float
+    is_active: bool = True
+    last_active: str = "Just now"
+    active_services_count: int = 1
+    services: List[str] = []
+
+
 class AdminOverviewOut(BaseModel):
     stats: AdminStatsOut
     recentActivity: List[ActivityOut]
+    liveUsers: List[LiveUserOut] = []
+
+
+class UserSubscriptionToggleRequest(BaseModel):
+    user_id: int
+    service_id: int
+    is_active: bool
+
+
+class UserSubscriptionItem(BaseModel):
+    service_id: int
+    service_name: str
+    is_active: bool
+    plan: str
+
+
+class UserSubscriptionMatrixOut(BaseModel):
+    user_id: int
+    user_name: str
+    email: str
+    role: str
+    status: str
+    subscriptions: List[UserSubscriptionItem]

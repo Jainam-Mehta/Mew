@@ -11,23 +11,35 @@ from app.schemas.admin import (
     AdminOverviewOut,
     AdminStatsOut,
     ActivityOut,
-    SubscriptionBreakdownOut
+    SubscriptionBreakdownOut,
+    LiveUserOut,
+    UserSubscriptionToggleRequest,
+    UserSubscriptionItem,
+    UserSubscriptionMatrixOut
 )
 from app.security import get_current_admin, get_password_hash
 
 router = APIRouter(prefix="/api/admin", tags=["Admin"], dependencies=[Depends(get_current_admin)])
 
+REGIONAL_LOCATIONS = [
+    {"city": "Pune", "region": "HQ & Cold Chain Hub (MH, IN)", "lat": 18.5204, "lng": 73.8567},
+    {"city": "Mumbai", "region": "Western Logistics Terminal (MH, IN)", "lat": 19.0760, "lng": 72.8777},
+    {"city": "Bengaluru", "region": "Tech & Sensor Analytics Lab (KA, IN)", "lat": 12.9716, "lng": 77.5946},
+    {"city": "New Delhi", "region": "North Operations Gateway (NCR, IN)", "lat": 28.6139, "lng": 77.2090},
+    {"city": "Hyderabad", "region": "Pharma Cold Chain Depot (TS, IN)", "lat": 17.3850, "lng": 78.4867},
+    {"city": "Chennai", "region": "Maritime Cargo Port (TN, IN)", "lat": 13.0827, "lng": 80.2707},
+]
+
 
 @router.get("/overview", response_model=AdminOverviewOut)
 def get_admin_overview(db: Session = Depends(get_db)):
-    """Retrieve platform statistics and recent audit activity feed."""
+    """Retrieve platform statistics, active live users geo-telemetry, and recent audit activity feed."""
     users = db.query(User).all()
     total_users = len(users)
     active_subs = db.query(Subscription).filter(Subscription.status == "active").count()
     service_count = db.query(Service).filter(Service.is_active == True).count()
 
     # Calculate estimated revenue based on subscriptions
-    # e.g., monthly $50/mo, yearly $500/yr
     estimated_revenue = f"${active_subs * 1850 + 1350:,}"
 
     activities = (
@@ -49,6 +61,41 @@ def get_admin_overview(db: Session = Depends(get_db)):
         for a in activities
     ]
 
+    # Build live active users geo-telemetry for Admin Overview Map
+    services_lookup = {s.id: s.name for s in db.query(Service).all()}
+    live_users_list = []
+
+    for idx, u in enumerate(users):
+        loc = REGIONAL_LOCATIONS[idx % len(REGIONAL_LOCATIONS)]
+        active_sub_services = [
+            services_lookup.get(sub.service_id, f"Service #{sub.service_id}")
+            for sub in u.subscriptions if sub.status == "active"
+        ]
+        if u.role == "admin" and not active_sub_services:
+            active_sub_services = list(services_lookup.values())
+
+        # Slight coordinate jitter so overlapping markers are distinctly visible
+        jitter_lat = (idx * 0.015) - 0.02
+        jitter_lng = (idx * 0.012) - 0.015
+
+        live_users_list.append(
+            LiveUserOut(
+                id=u.id,
+                name=u.name,
+                email=u.email,
+                role=u.role,
+                status=u.status,
+                city=loc["city"],
+                region=loc["region"],
+                lat=loc["lat"] + jitter_lat,
+                lng=loc["lng"] + jitter_lng,
+                is_active=(u.status == "active"),
+                last_active="Active now" if idx % 2 == 0 else f"{idx * 3 + 2}m ago",
+                active_services_count=len(active_sub_services),
+                services=active_sub_services
+            )
+        )
+
     return AdminOverviewOut(
         stats=AdminStatsOut(
             totalUsers=total_users,
@@ -56,7 +103,8 @@ def get_admin_overview(db: Session = Depends(get_db)):
             revenue=estimated_revenue,
             services=service_count
         ),
-        recentActivity=activity_items
+        recentActivity=activity_items,
+        liveUsers=live_users_list
     )
 
 
@@ -237,9 +285,9 @@ def get_subscription_stats(db: Session = Depends(get_db)):
     results = []
 
     pricing = {
-        "Sheela": ("$8,450", "monthly/yearly"),
-        "Mohan": ("$5,200", "yearly"),
-        "Godbaldeshlalputin": ("$3,100", "yearly")
+        "IoT Environmental Telemetry Engine": ("$8,450", "monthly/yearly"),
+        "Industrial Machinery Diagnostics": ("$5,200", "yearly"),
+        "Edge Gateway & Device Orchestrator": ("$3,100", "yearly")
     }
 
     for s in services:
@@ -258,3 +306,102 @@ def get_subscription_stats(db: Session = Depends(get_db)):
             )
         )
     return results
+
+
+@router.get("/subscriptions/matrix", response_model=List[UserSubscriptionMatrixOut])
+def get_user_subscriptions_matrix(db: Session = Depends(get_db)):
+    """List all registered users with their granular service subscription statuses."""
+    users = db.query(User).all()
+    services = db.query(Service).all()
+    matrix = []
+
+    for u in users:
+        user_subs = {
+            sub.service_id: sub
+            for sub in u.subscriptions
+        }
+        sub_items = []
+        for s in services:
+            existing_sub = user_subs.get(s.id)
+            # Admin automatically has access or explicit active
+            is_active = (existing_sub is not None and existing_sub.status == "active")
+            if u.role == "admin" and not existing_sub:
+                is_active = True
+            
+            sub_items.append(
+                UserSubscriptionItem(
+                    service_id=s.id,
+                    service_name=s.name,
+                    is_active=is_active,
+                    plan=existing_sub.plan if existing_sub else u.subscription_plan or "monthly"
+                )
+            )
+
+        matrix.append(
+            UserSubscriptionMatrixOut(
+                user_id=u.id,
+                user_name=u.name,
+                email=u.email,
+                role=u.role,
+                status=u.status,
+                subscriptions=sub_items
+            )
+        )
+    return matrix
+
+
+@router.post("/subscriptions/toggle")
+def toggle_user_subscription(
+    payload: UserSubscriptionToggleRequest,
+    db: Session = Depends(get_db)
+):
+    """Admin endpoint to activate or deactivate a specific service subscription for a user."""
+    user = db.query(User).filter(User.id == payload.user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    service = db.query(Service).filter(Service.id == payload.service_id).first()
+    if not service:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service not found")
+
+    sub = (
+        db.query(Subscription)
+        .filter(Subscription.user_id == user.id, Subscription.service_id == service.id)
+        .first()
+    )
+
+    if payload.is_active:
+        if not sub:
+            sub = Subscription(
+                user_id=user.id,
+                service_id=service.id,
+                plan=user.subscription_plan or "monthly",
+                status="active"
+            )
+            db.add(sub)
+        else:
+            sub.status = "active"
+    else:
+        if sub:
+            sub.status = "cancelled"
+
+    # Audit log
+    action_str = "activated" if payload.is_active else "deactivated"
+    activity = ActivityLog(
+        user_name="Admin",
+        action=f"{action_str} subscription for",
+        service_name=f"{service.name} ({user.name})",
+        time_ago="Just now",
+        activity_type="success" if payload.is_active else "warning"
+    )
+    db.add(activity)
+    db.commit()
+
+    return {
+        "success": True,
+        "message": f"Service '{service.name}' {action_str} for {user.name}",
+        "user_id": user.id,
+        "service_id": service.id,
+        "is_active": payload.is_active
+    }
+

@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
+import { useTheme } from '../context/ThemeContext';
 import api from '../api/client';
 import { 
   ArrowLeft, Thermometer, Droplets, Wifi, WifiOff, 
   AlertTriangle, Activity, TrendingUp, Calendar, RefreshCw,
-  Sliders, ShieldCheck, CheckCircle2
+  Sliders, ShieldCheck, CheckCircle2, Sun, Moon
 } from 'lucide-react';
 import SubscriptionRequired from '../components/SubscriptionRequired';
 
@@ -14,13 +15,14 @@ const ServiceDetail = () => {
   const { serviceId } = useParams();
   const { user } = useAuth();
   const { settings, formatTemp, tempUnit, checkSensorAlarm } = useSettings();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
-  // Service names mapping
+  // Technical service names mapping
   const serviceNames = {
-    '1': 'Sheela',
-    '2': 'Mohan',
-    '3': 'Godbaldeshlalputin'
+    '1': 'IoT Environmental Telemetry Engine',
+    '2': 'Industrial Machinery Diagnostics',
+    '3': 'Edge Gateway & Device Orchestrator'
   };
 
   const serviceName = serviceNames[serviceId] || `Service ${serviceId}`;
@@ -81,6 +83,28 @@ const ServiceDetail = () => {
     return () => clearInterval(intervalId);
   }, [serviceId, settings?.iot?.telemetryPollingIntervalSeconds]);
 
+  const handleBack = () => {
+    if (user?.role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/dashboard');
+    }
+  };
+
+  const handleToggleSensor = async (sensorId) => {
+    try {
+      const res = await api.patch(`/services/${serviceId}/sensors/${sensorId}/toggle`);
+      setTelemetry((prev) => ({
+        ...prev,
+        sensors: (prev.sensors || []).map((s) =>
+          s.id === sensorId ? { ...s, is_enabled: res.is_enabled } : s
+        )
+      }));
+    } catch (err) {
+      console.error('Failed to toggle sensor:', err);
+    }
+  };
+
   if (!hasAccess) {
     return <SubscriptionRequired serviceName={serviceName} />;
   }
@@ -98,9 +122,9 @@ const ServiceDetail = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate('/dashboard')}
+                onClick={handleBack}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Back to Dashboard"
+                title={user?.role === 'admin' ? 'Back to Admin' : 'Back to Dashboard'}
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </button>
@@ -114,12 +138,21 @@ const ServiceDetail = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={loadData}
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 text-gray-600 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                 title="Refresh Readings"
               >
                 <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
               </button>
-              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              >
+                {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
+              </button>
+
+              <span className="px-3 py-1 bg-green-100 dark:bg-green-950/70 text-green-700 dark:text-green-300 rounded-full text-xs font-semibold">
                 Live Telemetry ({tempUnit})
               </span>
             </div>
@@ -261,18 +294,24 @@ const ServiceDetail = () => {
                     <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Humidity (%)</th>
                     <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Compliance</th>
                     <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Sensor Switch</th>
                     <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Last Seen</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredSensors.map((sensor) => {
                     const alarmStatus = checkSensorAlarm(sensor.temperature, sensor.humidity);
+                    const isEnabled = sensor.is_enabled !== false;
 
                     return (
                       <tr 
                         key={sensor.id} 
                         className={`border-b border-gray-100 transition-colors ${
-                          sensor.status === 'offline' ? 'bg-red-50/60 hover:bg-red-100' : 'hover:bg-gray-50'
+                          !isEnabled 
+                            ? 'bg-gray-100/70 opacity-60 hover:bg-gray-100' 
+                            : sensor.status === 'offline' 
+                            ? 'bg-red-50/60 hover:bg-red-100' 
+                            : 'hover:bg-gray-50'
                         }`}
                       >
                         <td className="px-4 py-4 text-sm text-gray-800 font-mono">#{sensor.id}</td>
@@ -318,13 +357,37 @@ const ServiceDetail = () => {
 
                         <td className="px-4 py-4">
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            sensor.status === 'online' 
+                            !isEnabled
+                              ? 'bg-gray-200 text-gray-700'
+                              : sensor.status === 'online' 
                               ? 'bg-green-100 text-green-700' 
                               : 'bg-red-100 text-red-700'
                           }`}>
-                            {sensor.status}
+                            {!isEnabled ? 'Disabled' : sensor.status}
                           </span>
                         </td>
+
+                        {/* Sensor Enable / Disable Toggle Switch */}
+                        <td className="px-4 py-4">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleSensor(sensor.id)}
+                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                              isEnabled ? 'bg-green-600' : 'bg-gray-300'
+                            }`}
+                            title={isEnabled ? 'Click to Disable Sensor' : 'Click to Enable Sensor'}
+                          >
+                            <span
+                              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                isEnabled ? 'translate-x-5' : 'translate-x-0'
+                              }`}
+                            />
+                          </button>
+                          <span className={`ml-2 text-xs font-semibold ${isEnabled ? 'text-green-700' : 'text-gray-500'}`}>
+                            {isEnabled ? 'Enabled' : 'Disabled'}
+                          </span>
+                        </td>
+
                         <td className="px-4 py-4 text-xs text-gray-600">{sensor.lastSeen || 'Just now'}</td>
                       </tr>
                     );

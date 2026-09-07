@@ -25,6 +25,12 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
     ]
 
+    # Telemetry Cloud Integration
+    TELEMETRY_API_URL: str = "https://api.nbsense.in"
+    TELEMETRY_USER_ID: str = "1accord@nbsense.com"
+    TELEMETRY_PASSWORD: str = "Qwerty@123"
+    TELEMETRY_DEFAULT_METER_ID: int = 225
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
