@@ -102,10 +102,18 @@ const PortalNavbar = ({
             {/* Dark / Light Mode Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 text-navy-200 hover:text-white hover:bg-navy-700 rounded-lg transition-colors"
-              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              id="theme-toggle-btn"
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all text-xs font-semibold border ${
+                isDark
+                  ? 'bg-amber-400/10 border-amber-400/30 text-amber-300 hover:bg-amber-400/20'
+                  : 'bg-navy-700/50 border-navy-600 text-navy-200 hover:bg-navy-700 hover:text-white'
+              }`}
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle dark/light mode"
             >
-              {isDark ? <Sun className="w-5 h-5 text-amber-300 animate-spin-slow" /> : <Moon className="w-5 h-5 text-navy-200" />}
+              {isDark
+                ? <><Sun className="w-4 h-4" /><span className="hidden sm:inline">Light</span></>
+                : <><Moon className="w-4 h-4" /><span className="hidden sm:inline">Dark</span></>}
             </button>
 
             {/* User Profile Pill / Menu */}

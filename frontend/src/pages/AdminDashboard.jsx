@@ -1184,10 +1184,18 @@ const AdminDashboard = () => {
               {/* Dark / Light Mode Switcher */}
               <button
                 onClick={toggleTheme}
-                className="p-2 text-white hover:bg-white/20 rounded-xl transition-all flex items-center gap-1.5 text-xs font-semibold"
-                title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                id="admin-theme-toggle-btn"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all text-xs font-semibold border ${
+                  isDark
+                    ? 'bg-amber-400/15 border-amber-400/40 text-amber-300 hover:bg-amber-400/25'
+                    : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+                }`}
+                title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                aria-label="Toggle dark/light mode"
               >
-                {isDark ? <Sun className="w-5 h-5 text-amber-300 animate-spin-slow" /> : <Moon className="w-5 h-5 text-navy-100" />}
+                {isDark
+                  ? <><Sun className="w-4 h-4" /><span className="hidden sm:inline">Light</span></>
+                  : <><Moon className="w-4 h-4" /><span className="hidden sm:inline">Dark</span></>}
               </button>
 
               <div className="flex items-center gap-3 pl-4 border-l border-navy-500">

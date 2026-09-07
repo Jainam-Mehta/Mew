@@ -2,30 +2,202 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   MEW — DARK MODE SYSTEM
+   
+   HOW IT WORKS:
+   ThemeContext.jsx adds/removes class "dark" on <html>.
+   Tailwind darkMode: 'class' activates dark: variants.
+   
+   CSS custom properties here power the transition on body
+   and provide tokens for manual use via var(--token).
+   ============================================================ */
 
+:root {
+  --bg-page:     #f8fafc;
+  --bg-surface:  #ffffff;
+  --bg-elevated: #f1f5f9;
+  --border:      #e2e8f0;
+  --text-hi:     #0f172a;
+  --text-body:   #334155;
+  --text-muted:  #64748b;
+}
+
+html.dark {
+  --bg-page:     #0f172a;
+  --bg-surface:  #1e293b;
+  --bg-elevated: #273549;
+  --border:      #334155;
+  --text-hi:     #f1f5f9;
+  --text-body:   #cbd5e1;
+  --text-muted:  #64748b;
+}
+
+/* ============================================================
+   BASE — Body background & text
+   ============================================================ */
 @layer base {
-  body {
-    @apply bg-gray-50 text-gray-800 antialiased transition-colors duration-200;
+  html {
+    scroll-behavior: smooth;
   }
-  html.dark body {
-    @apply bg-slate-950 text-slate-100;
+
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-body);
+    @apply antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* All inputs, selects, textareas respond to dark mode */
+  input, textarea, select {
+    @apply dark:bg-slate-800 dark:text-slate-100 dark:border-slate-600;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
 }
 
+/* ============================================================
+   COMPONENTS
+   ============================================================ */
 @layer components {
   .btn-primary {
     @apply px-6 py-3 bg-gradient-to-r from-navy-700 to-primary-600 text-white font-medium rounded-lg hover:from-navy-800 hover:to-primary-700 transition-all duration-200 shadow-lg hover:shadow-xl;
   }
-  
+
   .btn-secondary {
-    @apply px-6 py-3 bg-white dark:bg-slate-900 text-navy-700 dark:text-navy-300 font-medium rounded-lg border-2 border-navy-200 dark:border-slate-700 hover:border-navy-400 transition-all duration-200;
+    @apply px-6 py-3 bg-white dark:bg-slate-800 text-navy-700 dark:text-slate-200 font-medium rounded-lg border-2 border-navy-200 dark:border-slate-600 hover:border-navy-400 dark:hover:border-slate-500 transition-all duration-200;
   }
-  
+
   .card {
-    @apply bg-white dark:bg-slate-900 rounded-xl shadow-md hover:shadow-xl dark:border dark:border-slate-800 transition-all duration-300 p-6;
+    @apply bg-white dark:bg-slate-800 rounded-xl shadow-md hover:shadow-xl dark:border dark:border-slate-700 transition-all duration-300 p-6;
   }
-  
+
   .input-field {
-    @apply w-full px-4 py-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-transparent outline-none transition-all;
+    @apply w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-transparent outline-none transition-all;
   }
 }
+
+/* ============================================================
+   GLOBAL DARK MODE — Targeted overrides for surfaces that
+   don't have dark: variants in their JSX class strings.
+
+   We avoid !important to keep specificity manageable.
+   ============================================================ */
+
+/* Page-level surfaces */
+html.dark .bg-gray-50 {
+  background-color: var(--bg-page);
+  transition: background-color 0.3s ease;
+}
+
+html.dark .bg-white {
+  background-color: var(--bg-surface);
+  transition: background-color 0.3s ease;
+}
+
+html.dark .bg-gray-100,
+html.dark .bg-slate-100 {
+  background-color: var(--bg-elevated);
+  transition: background-color 0.3s ease;
+}
+
+/* Text colors */
+html.dark .text-gray-900,
+html.dark .text-gray-800 {
+  color: var(--text-hi);
+  transition: color 0.3s ease;
+}
+
+html.dark .text-gray-700,
+html.dark .text-gray-600 {
+  color: var(--text-body);
+  transition: color 0.3s ease;
+}
+
+html.dark .text-gray-500,
+html.dark .text-gray-400 {
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+
+/* Borders */
+html.dark .border-gray-100,
+html.dark .border-gray-200,
+html.dark .border-gray-300 {
+  border-color: var(--border);
+  transition: border-color 0.3s ease;
+}
+
+html.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border);
+}
+
+/* Cards / panels with common patterns */
+html.dark [class*="bg-white"][class*="rounded"],
+html.dark [class*="bg-white"][class*="shadow"] {
+  background-color: var(--bg-surface);
+}
+
+/* Table */
+html.dark thead {
+  background-color: #1e293b;
+}
+html.dark thead th {
+  color: #94a3b8;
+  border-color: #334155;
+}
+html.dark tbody tr {
+  background-color: var(--bg-surface);
+  transition: background-color 0.2s ease;
+}
+html.dark tbody tr:hover {
+  background-color: var(--bg-elevated);
+}
+html.dark td {
+  color: var(--text-body);
+  border-color: var(--border);
+}
+
+/* Inputs fallback (for those without dark: class) */
+html.dark input[type="text"],
+html.dark input[type="email"],
+html.dark input[type="password"],
+html.dark input[type="number"],
+html.dark input[type="search"],
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+
+/* Dropdowns / floating menus */
+html.dark .bg-white.rounded-xl.shadow-2xl,
+html.dark .bg-white.shadow-2xl,
+html.dark .z-50.bg-white {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+/* Feedback / status banners */
+html.dark .bg-emerald-50  { background-color: #052e16; }
+html.dark .bg-green-50    { background-color: #052e16; }
+html.dark .bg-red-50      { background-color: #1f0a0a; }
+html.dark .bg-orange-50   { background-color: #1c0a04; }
+html.dark .bg-amber-50,
+html.dark .bg-yellow-50   { background-color: #1c1408; }
+html.dark .bg-blue-50,
+html.dark .bg-sky-50      { background-color: #0c1a2e; }
+html.dark .bg-purple-50   { background-color: #1a0f2e; }
+html.dark .bg-indigo-50   { background-color: #0f0e2e; }
+
+/* Pulse skeleton */
+html.dark [class*="animate-pulse"][class*="bg-gray-"] {
+  background-color: #273549;
+}
+
+/* Scrollbar */
+html.dark ::-webkit-scrollbar { background: #1e293b; }
+html.dark ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #475569; }

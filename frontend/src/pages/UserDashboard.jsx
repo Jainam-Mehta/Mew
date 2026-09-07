@@ -1241,7 +1241,7 @@ const UserDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col font-sans transition-colors duration-300">
       {/* Top Navbar */}
       <PortalNavbar
         activeCategory={activeCategory}
@@ -1270,7 +1270,7 @@ const UserDashboard = () => {
           profile={profile}
         />
 
-        <main className="flex-1 p-6 sm:p-8 overflow-y-auto max-w-7xl">
+        <main className="flex-1 p-6 sm:p-8 overflow-y-auto max-w-7xl bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
           {activeCategory === 'temp' ? (
             <>
               {activeTab === 'dashboard' && renderDashboardView()}
