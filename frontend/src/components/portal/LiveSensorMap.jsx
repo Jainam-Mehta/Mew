@@ -62,6 +62,7 @@ const LiveSensorMap = ({
     const map = L.map(mapContainerRef.current, {
       center: [FACILITY_LAT, FACILITY_LNG],
       zoom: 13,
+      maxZoom: 22,
       zoomControl: false,
     });
     mapInstanceRef.current = map;
@@ -69,7 +70,8 @@ const LiveSensorMap = ({
     // Add Tile Layer
     const tileLayer = L.tileLayer(TILE_LAYERS[activeLayer].url, {
       attribution: TILE_LAYERS[activeLayer].attribution,
-      maxZoom: 19,
+      maxNativeZoom: 19,
+      maxZoom: 22,
     }).addTo(map);
     tileLayerRef.current = tileLayer;
 
@@ -161,7 +163,8 @@ const LiveSensorMap = ({
       mapInstanceRef.current.removeLayer(tileLayerRef.current);
       const newLayer = L.tileLayer(TILE_LAYERS[layerKey].url, {
         attribution: TILE_LAYERS[layerKey].attribution,
-        maxZoom: 19,
+        maxNativeZoom: 19,
+        maxZoom: 22,
       }).addTo(mapInstanceRef.current);
       tileLayerRef.current = newLayer;
     }

@@ -12,13 +12,14 @@ import {
   ShieldAlert, Sprout, FlameKindling, Info, Plus, Save,
   Bell, BellRing, MapPin, Compass, HelpCircle, ClipboardList, Send, FileText
 } from 'lucide-react';
-import PortalNavbar, { CATEGORIES } from '../components/portal/PortalNavbar';
+import PortalNavbar, { CATEGORIES, CATEGORY_SERVICE_MAP } from '../components/portal/PortalNavbar';
 import PortalSidebar from '../components/portal/PortalSidebar';
 import UserProfileModal from '../components/portal/UserProfileModal';
 import LiveSensorMap from '../components/portal/LiveSensorMap';
 import TelemetryChart from '../components/portal/TelemetryChart';
 import SupportTicketsModal from '../components/portal/SupportTicketsModal';
 import UserAlertingSettings from '../components/portal/UserAlertingSettings';
+import SubscriptionRequired from '../components/SubscriptionRequired';
 
 const UserDashboard = () => {
   const { user, logout } = useAuth();
@@ -1271,20 +1272,40 @@ const UserDashboard = () => {
         />
 
         <main className="flex-1 p-6 sm:p-8 overflow-y-auto max-w-7xl bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
-          {activeCategory === 'temp' ? (
-            <>
-              {activeTab === 'dashboard' && renderDashboardView()}
-              {activeTab === 'analysis' && renderAnalysisView()}
-              {activeTab === 'alarms' && renderSetAlertsView()}
-              {activeTab === 'alarms_list' && renderAlarmsListView()}
-              {activeTab === 'reports' && renderReportsView()}
-              {activeTab === 'schedule' && renderScheduleView()}
-              {activeTab === 'all_alerts' && renderAlarmsListView()}
-              {activeTab === 'help' && renderHelpView()}
-            </>
-          ) : (
-            renderOtherDomainView()
-          )}
+          {(() => {
+            const userSubscribedServices = user?.role === 'admin'
+              ? [1, 2, 3]
+              : (user?.services || user?.subscribedServices || profile?.services || [1]);
+
+            const activeServiceId = CATEGORY_SERVICE_MAP[activeCategory] || 1;
+            const isCurrentCategorySubscribed = userSubscribedServices.includes(activeServiceId);
+
+            if (!isCurrentCategorySubscribed) {
+              const serviceNames = {
+                1: 'IoT Environmental Telemetry Engine',
+                2: 'Industrial Machinery Diagnostics',
+                3: 'Edge Gateway & Device Orchestrator'
+              };
+              return <SubscriptionRequired serviceName={serviceNames[activeServiceId] || `Service ${activeServiceId}`} />;
+            }
+
+            if (activeCategory === 'temp') {
+              return (
+                <>
+                  {activeTab === 'dashboard' && renderDashboardView()}
+                  {activeTab === 'analysis' && renderAnalysisView()}
+                  {activeTab === 'alarms' && renderSetAlertsView()}
+                  {activeTab === 'alarms_list' && renderAlarmsListView()}
+                  {activeTab === 'reports' && renderReportsView()}
+                  {activeTab === 'schedule' && renderScheduleView()}
+                  {activeTab === 'all_alerts' && renderAlarmsListView()}
+                  {activeTab === 'help' && renderHelpView()}
+                </>
+              );
+            }
+
+            return renderOtherDomainView();
+          })()}
         </main>
       </div>
 

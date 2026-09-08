@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str = "mew-super-secret-jwt-key-change-this-in-production-2026"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 365  # 1 year (persistent session until signed out)
 
     # CORS
     CORS_ORIGINS: Union[List[str], str] = [

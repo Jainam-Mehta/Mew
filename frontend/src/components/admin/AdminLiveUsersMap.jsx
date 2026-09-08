@@ -60,6 +60,7 @@ export default function AdminLiveUsersMap({ liveUsers = [], onSelectUser }) {
       const map = L.map(mapRef.current, {
         center: [initialLat, initialLng],
         zoom: 5,
+        maxZoom: 22,
         zoomControl: false,
         attributionControl: false,
       });
@@ -80,7 +81,8 @@ export default function AdminLiveUsersMap({ liveUsers = [], onSelectUser }) {
 
     // Add updated tile layer
     L.tileLayer(getTileUrl(), {
-      maxZoom: 18,
+      maxNativeZoom: 18,
+      maxZoom: 22,
       attribution: getTileAttribution(),
     }).addTo(map);
   }, [mapStyle, isDark]);

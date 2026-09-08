@@ -56,13 +56,20 @@ export const AuthProvider = ({ children }) => {
     if (storedToken) {
       api.get('/auth/me')
         .then((profile) => {
-          setUser(profile);
-          setIsAdmin(profile.role === 'admin');
-          localStorage.setItem('user', JSON.stringify(profile));
-          localStorage.setItem('isAdmin', String(profile.role === 'admin'));
+          if (profile) {
+            const normalizedUser = {
+              ...profile,
+              services: profile.subscribedServices || profile.services || (profile.role === 'admin' ? [1, 2, 3] : [1]),
+              subscribedServices: profile.subscribedServices || profile.services || (profile.role === 'admin' ? [1, 2, 3] : [1])
+            };
+            setUser(normalizedUser);
+            setIsAdmin(normalizedUser.role === 'admin');
+            localStorage.setItem('user', JSON.stringify(normalizedUser));
+            localStorage.setItem('isAdmin', String(normalizedUser.role === 'admin'));
+          }
         })
         .catch(() => {
-          // If token expired or server offline, keep stored profile
+          // If server offline, keep stored profile
         })
         .finally(() => {
           setLoading(false);
@@ -81,11 +88,17 @@ export const AuthProvider = ({ children }) => {
       const data = await api.post('/auth/login', payload);
 
       if (data && data.access_token) {
+        const normalizedUser = {
+          ...data.user,
+          services: data.user?.subscribedServices || data.user?.services || (data.isAdmin ? [1, 2, 3] : [1]),
+          subscribedServices: data.user?.subscribedServices || data.user?.services || (data.isAdmin ? [1, 2, 3] : [1])
+        };
+
         localStorage.setItem('token', data.access_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('user', JSON.stringify(normalizedUser));
         localStorage.setItem('isAdmin', String(data.isAdmin));
 
-        setUser(data.user);
+        setUser(normalizedUser);
         setIsAdmin(data.isAdmin);
 
         return { success: true, isAdmin: data.isAdmin };

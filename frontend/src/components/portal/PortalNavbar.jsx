@@ -3,25 +3,41 @@ import {
   LogOut, Bell, Phone, User, Activity, CheckCircle2, 
   ChevronDown, ShieldCheck, Thermometer, Zap, Radio, 
   Gauge, BatteryCharging, Droplets, Wind, Vibrate, 
-  Flame, ShieldAlert, Sprout, FlameKindling, Sun, Moon
+  Flame, ShieldAlert, Sprout, FlameKindling, Sun, Moon, Lock
 } from 'lucide-react';
 import MewIcon from '../MewIcon';
 import { useTheme } from '../../context/ThemeContext';
 
+export const CATEGORY_SERVICE_MAP = {
+  temp: 1,
+  ems: 2,
+  dg: 2,
+  trans: 2,
+  pump: 2,
+  vib: 2,
+  bms: 3,
+  wms: 3,
+  hvc: 3,
+  fms: 3,
+  nbs: 3,
+  agr: 3,
+  steam: 3,
+};
+
 export const CATEGORIES = [
-  { id: 'temp', label: 'Temp/Humidity', icon: Thermometer, color: 'text-blue-500' },
-  { id: 'ems', label: 'Energy', icon: Zap, color: 'text-amber-500' },
-  { id: 'dg', label: 'DG', icon: Radio, color: 'text-orange-500' },
-  { id: 'trans', label: 'Transformer', icon: Gauge, color: 'text-indigo-500' },
-  { id: 'pump', label: 'Pump', icon: Activity, color: 'text-cyan-500' },
-  { id: 'bms', label: 'UPS', icon: BatteryCharging, color: 'text-green-500' },
-  { id: 'wms', label: 'Tank', icon: Droplets, color: 'text-blue-600' },
-  { id: 'hvc', label: 'HVAC', icon: Wind, color: 'text-teal-500' },
-  { id: 'vib', label: 'Vibration', icon: Vibrate, color: 'text-purple-500' },
-  { id: 'fms', label: 'Fire System', icon: Flame, color: 'text-red-500' },
-  { id: 'nbs', label: 'Netsafe', icon: ShieldAlert, color: 'text-emerald-500' },
-  { id: 'agr', label: 'Agriculture', icon: Sprout, color: 'text-lime-500' },
-  { id: 'steam', label: 'Steam/Boiler', icon: FlameKindling, color: 'text-rose-500' },
+  { id: 'temp', label: 'Temp/Humidity', icon: Thermometer, color: 'text-blue-500', serviceId: 1 },
+  { id: 'ems', label: 'Energy', icon: Zap, color: 'text-amber-500', serviceId: 2 },
+  { id: 'dg', label: 'DG', icon: Radio, color: 'text-orange-500', serviceId: 2 },
+  { id: 'trans', label: 'Transformer', icon: Gauge, color: 'text-indigo-500', serviceId: 2 },
+  { id: 'pump', label: 'Pump', icon: Activity, color: 'text-cyan-500', serviceId: 2 },
+  { id: 'bms', label: 'UPS', icon: BatteryCharging, color: 'text-green-500', serviceId: 3 },
+  { id: 'wms', label: 'Tank', icon: Droplets, color: 'text-blue-600', serviceId: 3 },
+  { id: 'hvc', label: 'HVAC', icon: Wind, color: 'text-teal-500', serviceId: 3 },
+  { id: 'vib', label: 'Vibration', icon: Vibrate, color: 'text-purple-500', serviceId: 2 },
+  { id: 'fms', label: 'Fire System', icon: Flame, color: 'text-red-500', serviceId: 3 },
+  { id: 'nbs', label: 'Netsafe', icon: ShieldAlert, color: 'text-emerald-500', serviceId: 3 },
+  { id: 'agr', label: 'Agriculture', icon: Sprout, color: 'text-lime-500', serviceId: 3 },
+  { id: 'steam', label: 'Steam/Boiler', icon: FlameKindling, color: 'text-rose-500', serviceId: 3 },
 ];
 
 const PortalNavbar = ({
@@ -186,25 +202,35 @@ const PortalNavbar = ({
       <div className="bg-navy-900 border-t border-navy-700/60 overflow-x-auto scrollbar-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex gap-1 py-1.5 min-w-max">
-            {CATEGORIES.map((cat) => {
-              const Icon = cat.icon;
-              const isActive = activeCategory === cat.id;
+            {(() => {
+              const userServices = user?.role === 'admin'
+                ? [1, 2, 3]
+                : (user?.services || user?.subscribedServices || profile?.services || [1]);
 
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => onSelectCategory(cat.id)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                    isActive
-                      ? 'bg-primary-600 text-white shadow-sm shadow-primary-500/20 font-semibold'
-                      : 'text-navy-200 hover:text-white hover:bg-navy-800'
-                  }`}
-                >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : cat.color}`} />
-                  <span>{cat.label}</span>
-                </button>
-              );
-            })}
+              return CATEGORIES.map((cat) => {
+                const Icon = cat.icon;
+                const isActive = activeCategory === cat.id;
+                const isSubscribed = userServices.includes(cat.serviceId || 1);
+
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => onSelectCategory(cat.id)}
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      isActive
+                        ? 'bg-primary-600 text-white shadow-sm shadow-primary-500/20 font-semibold'
+                        : 'text-navy-200 hover:text-white hover:bg-navy-800'
+                    }`}
+                  >
+                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : cat.color}`} />
+                    <span>{cat.label}</span>
+                    {!isSubscribed && (
+                      <Lock className="w-3 h-3 text-amber-400" title="Subscription Required" />
+                    )}
+                  </button>
+                );
+              });
+            })()}
           </div>
         </div>
       </div>
