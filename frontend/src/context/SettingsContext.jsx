@@ -22,17 +22,17 @@ const DEFAULT_SETTINGS = {
   dateFormat: 'DD-MMM-YYYY HH:mm',
   iot: {
     temperatureUnit: 'C',
-    telemetryPollingIntervalSeconds: 15,
+    telemetryPollingIntervalSeconds: 30,  // Increased from 15 to 30 seconds
     minTempThreshold: 2.0,
     maxTempThreshold: 8.0,
     humidityThreshold: 85.0,
-    alertGracePeriodMinutes: 5,
+    alertGracePeriodMinutes: 10,  // Increased from 5 to 10 minutes
     maxEquipmentTempThreshold: 75.0,
     vibrationLimitMms: 4.5,
     currentDrawLimitAmps: 32.0,
     maintenanceIntervalHours: 500,
     uptimeSlaPercent: 99.0,
-    sensorOfflineThresholdMinutes: 15,
+    sensorOfflineThresholdMinutes: 30,  // Increased from 15 to 30 minutes
     monthlyDataCapGb: 2.0,
     lowBatteryThresholdVolts: 3.3,
     maxPacketLossPercent: 5.0,

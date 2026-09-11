@@ -79,12 +79,9 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = async (email, password, name, mobile) => {
+  const login = async (email, password) => {
     try {
       const payload = { email, password };
-      if (name) payload.name = name;
-      if (mobile) payload.mobile = mobile;
-
       const data = await api.post('/auth/login', payload);
 
       if (data && data.access_token) {
@@ -129,38 +126,7 @@ export const AuthProvider = ({ children }) => {
         return { success: true, isAdmin: false };
       }
 
-      if (email && password && name && mobile) {
-        const regularUser = {
-          email,
-          name,
-          mobile,
-          role: 'user',
-          subscribedServices: [1],
-        };
-        setUser(regularUser);
-        setIsAdmin(false);
-        localStorage.setItem('user', JSON.stringify(regularUser));
-        localStorage.setItem('isAdmin', 'false');
-        return { success: true, isAdmin: false };
-      }
-
       return { success: false, message: err.message || 'Login failed' };
-    }
-  };
-
-  const register = async (name, email, mobile, password) => {
-    try {
-      const data = await api.post('/auth/register', { name, email, mobile, password });
-      if (data && data.access_token) {
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('isAdmin', String(data.isAdmin));
-        setUser(data.user);
-        setIsAdmin(data.isAdmin);
-        return { success: true, isAdmin: false };
-      }
-    } catch (err) {
-      return { success: false, message: err.message };
     }
   };
 
@@ -178,7 +144,6 @@ export const AuthProvider = ({ children }) => {
     isAdmin,
     loading,
     login,
-    register,
     logout,
   };
 
