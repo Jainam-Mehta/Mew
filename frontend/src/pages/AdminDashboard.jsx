@@ -8,7 +8,7 @@ import {
   LogOut, Users, DollarSign, Settings,
   Plus, Edit, Trash2, CheckCircle, XCircle, Search,
   Activity, Shield, RefreshCw, Sliders,
-  Sun, Moon, Thermometer, Box, Cpu
+  Sun, Moon, Thermometer, Box, Cpu, X
 } from 'lucide-react';
 import MewIcon from '../components/MewIcon';
 import AdminSettings from '../components/admin/AdminSettings';

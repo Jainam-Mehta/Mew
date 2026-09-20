@@ -26,9 +26,9 @@ class Settings(BaseSettings):
     ]
 
     # Telemetry Cloud Integration
-    TELEMETRY_API_URL: str = "https://api.nbsense.in"
-    TELEMETRY_USER_ID: str = "1accord@nbsense.com"
-    TELEMETRY_PASSWORD: str = "Qwerty@123"
+    TELEMETRY_API_URL: str = "https://api.mew.app"
+    TELEMETRY_USER_ID: str = "telemetry@mew.app"
+    TELEMETRY_PASSWORD: str = "MewStreamSecret2026!"
     TELEMETRY_DEFAULT_METER_ID: int = 225
 
     @field_validator("CORS_ORIGINS", mode="before")

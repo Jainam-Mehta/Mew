@@ -14,6 +14,7 @@ from app.schemas.admin import (
     SubscriptionBreakdownOut,
     LiveUserOut,
     UserSubscriptionToggleRequest,
+    UserSubscriptionPaymentStatusRequest,
     UserSubscriptionItem,
     UserSubscriptionMatrixOut
 )
@@ -333,7 +334,8 @@ def get_user_subscriptions_matrix(db: Session = Depends(get_db)):
                     service_id=s.id,
                     service_name=s.name,
                     is_active=is_active,
-                    plan=existing_sub.plan if existing_sub else u.subscription_plan or "monthly"
+                    plan=existing_sub.plan if existing_sub else u.subscription_plan or "monthly",
+                    payment_status=getattr(existing_sub, "payment_status", "paid") if existing_sub else "paid"
                 )
             )
 
@@ -404,4 +406,56 @@ def toggle_user_subscription(
         "service_id": service.id,
         "is_active": payload.is_active
     }
+
+
+@router.put("/subscriptions/payment-status")
+def update_user_payment_status(
+    payload: UserSubscriptionPaymentStatusRequest,
+    db: Session = Depends(get_db)
+):
+    """Admin endpoint to update payment status (pending, paid, overdue, failed) for a user service subscription."""
+    user = db.query(User).filter(User.id == payload.user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    service = db.query(Service).filter(Service.id == payload.service_id).first()
+    if not service:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service not found")
+
+    sub = (
+        db.query(Subscription)
+        .filter(Subscription.user_id == user.id, Subscription.service_id == service.id)
+        .first()
+    )
+
+    if not sub:
+        sub = Subscription(
+            user_id=user.id,
+            service_id=service.id,
+            plan=user.subscription_plan or "monthly",
+            status="active",
+            payment_status=payload.payment_status
+        )
+        db.add(sub)
+    else:
+        sub.payment_status = payload.payment_status
+
+    activity = ActivityLog(
+        user_name="Admin",
+        action=f"updated payment status to {payload.payment_status.upper()} for",
+        service_name=f"{service.name} ({user.name})",
+        time_ago="Just now",
+        activity_type="info"
+    )
+    db.add(activity)
+    db.commit()
+
+    return {
+        "success": True,
+        "message": f"Payment status for {user.name} ({service.name}) updated to '{payload.payment_status}'",
+        "user_id": user.id,
+        "service_id": service.id,
+        "payment_status": payload.payment_status
+    }
+
 

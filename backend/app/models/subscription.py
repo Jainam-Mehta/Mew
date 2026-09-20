@@ -12,6 +12,7 @@ class Subscription(Base):
     service_id = Column(Integer, ForeignKey("services.id", ondelete="CASCADE"), nullable=False)
     plan = Column(String, default="monthly")  # "monthly", "yearly"
     status = Column(String, default="active")  # "active", "cancelled", "expired"
+    payment_status = Column(String, default="paid")  # "pending", "paid", "overdue", "failed"
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

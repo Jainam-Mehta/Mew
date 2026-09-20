@@ -56,11 +56,18 @@ class UserSubscriptionToggleRequest(BaseModel):
     is_active: bool
 
 
+class UserSubscriptionPaymentStatusRequest(BaseModel):
+    user_id: int
+    service_id: int
+    payment_status: str
+
+
 class UserSubscriptionItem(BaseModel):
     service_id: int
     service_name: str
     is_active: bool
     plan: str
+    payment_status: str = "paid"
 
 
 class UserSubscriptionMatrixOut(BaseModel):
